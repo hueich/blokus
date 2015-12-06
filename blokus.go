@@ -13,12 +13,12 @@ const (
 	boardSize = 20
 )
 
-type board struct {
+type Board struct {
 	grid [][]space
 }
 
-func NewBoard(size int) *board {
-	b := board{
+func NewBoard(size int) *Board {
+	b := Board{
 		grid: make([][]space, size),
 	}
 	for i := range b.grid {
@@ -27,40 +27,41 @@ func NewBoard(size int) *board {
 	return &b
 }
 
-type coord struct {
+type Coord struct {
 	X, Y int
 }
 
 type piece struct {
+	// TODO: Add ID/name if we need to identify equivalent pieces in different orientations.
 	color int
-	blocks []coord
+	blocks []Coord
+	corners []Coord
 }
 
 func (p *piece) Rotate() {
-	// TODO: Rotate coordinates clockwise
+	// TODO: Rotate coordinates clockwise.
 }
 
 func (p *piece) Flip() {
-	// TODO: Flip coordinates
+	// TODO: Flip coordinates.
 }
 
 type space struct {
-	// empty bool
-	color int
-	parent *piece  // TODO: Do we need this?
+	// TODO: Evaluate if we can just use *piece directly in the Board.
+	parent *piece
 }
 
 func NewSpace(parent *piece) space {
 	return space{
-		color: parent.color,
 		parent: parent,
 	}
 }
 
 func (s *space) IsEmpty() bool {
-	return s.color == blank
+	return s.parent == nil
 }
 
 func (s *space) GetColor() int {
-	return s.color
+	// TODO: Gracefully handle nil pointer.
+	return s.parent.color
 }
