@@ -9,10 +9,6 @@ const (
 	green = iota
 )
 
-const (
-	boardSize = 20
-)
-
 type Board struct {
 	grid [][]space
 }
