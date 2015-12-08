@@ -9,6 +9,18 @@ const (
 	Green = iota
 )
 
+type Player struct {
+	name string
+	color int
+	pieces []*Piece
+	// The corner the player starts from, with X and Y coordinates being either -1 or 1.
+	corner Coord
+}
+
+func (p *Player) GetColor() int {
+	return p.color
+}
+
 // Coord represents a 2D coordinate.
 type Coord struct {
 	X, Y int
@@ -32,9 +44,13 @@ func NewBoard(size int) *Board {
 // Piece represents a puzzle piece, made up of one or more square blocks.
 type Piece struct {
 	id int
-	color int
+	player *Player
 	blocks []Coord
 	corners []Coord
+}
+
+func (p *Piece) GetColor() int {
+	return p.player.GetColor()
 }
 
 func (p *Piece) Rotate() {
@@ -63,5 +79,5 @@ func (s *space) IsEmpty() bool {
 
 func (s *space) GetColor() int {
 	// TODO: Gracefully handle nil pointer.
-	return s.piece.color
+	return s.piece.GetColor()
 }
