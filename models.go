@@ -2,12 +2,16 @@ package blokus
 
 // Colors
 const (
-	blank = iota
-	blue = iota
-	yellow = iota
-	red = iota
-	green = iota
+	UnknownColor = iota
+	Blue = iota
+	Yellow = iota
+	Red = iota
+	Green = iota
 )
+
+type Coord struct {
+	X, Y int
+}
 
 type Board struct {
 	grid [][]space
@@ -23,12 +27,8 @@ func NewBoard(size int) *Board {
 	return &b
 }
 
-type Coord struct {
-	X, Y int
-}
-
 type piece struct {
-	// TODO: Add ID/name if we need to identify equivalent pieces in different orientations.
+	id int
 	color int
 	blocks []Coord
 	corners []Coord
