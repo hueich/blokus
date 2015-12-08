@@ -30,38 +30,38 @@ func NewBoard(size int) *Board {
 }
 
 // Piece represents a puzzle piece, made up of one or more square blocks.
-type piece struct {
+type Piece struct {
 	id int
 	color int
 	blocks []Coord
 	corners []Coord
 }
 
-func (p *piece) Rotate() {
+func (p *Piece) Rotate() {
 	// TODO: Rotate coordinates clockwise.
 }
 
-func (p *piece) Flip() {
+func (p *Piece) Flip() {
 	// TODO: Flip coordinates.
 }
 
 // Space represents a space on the board.
 type space struct {
-	// TODO: Evaluate if we can just use *piece directly in the Board.
-	parent *piece
+	// TODO: Evaluate if we can just use *Piece directly in the Board.
+	piece *Piece
 }
 
-func NewSpace(parent *piece) space {
+func NewSpace(piece *Piece) space {
 	return space{
-		parent: parent,
+		piece: piece,
 	}
 }
 
 func (s *space) IsEmpty() bool {
-	return s.parent == nil
+	return s.piece == nil
 }
 
 func (s *space) GetColor() int {
 	// TODO: Gracefully handle nil pointer.
-	return s.parent.color
+	return s.piece.color
 }
