@@ -24,6 +24,7 @@ func ColorName(c int) string {
 }
 
 type Player struct {
+	// Unique name of the player.
 	name string
 	color int
 	pieces []*Piece
@@ -64,8 +65,14 @@ type Piece struct {
 	// This is the space where the (0,0) block is positioned.
 	// TODO: Evaluate if we can just use a Coord pointer instead, where nil pointer means not placed.
 	space *space
+	// The square blocks this piece consists of. First block must be at (0,0) with other blocks relative to it.
 	blocks []Coord
+	// The corner squares of this piece, which was calculated from blocks and cached here.
 	corners []Coord
+	// Number of 90 degree clockwise rotations, between 0-3, where 0 is no rotation, i.e. original orientation.
+	rot int
+	// True if the piece is flipped.
+	flip bool
 }
 
 func (p *Piece) GetColor() int {
