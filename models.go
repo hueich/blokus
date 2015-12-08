@@ -9,10 +9,12 @@ const (
 	Green = iota
 )
 
+// Coord represents a 2D coordinate.
 type Coord struct {
 	X, Y int
 }
 
+// Board represents the game board.
 type Board struct {
 	grid [][]space
 }
@@ -27,6 +29,7 @@ func NewBoard(size int) *Board {
 	return &b
 }
 
+// Piece represents a puzzle piece, made up of one or more square blocks.
 type piece struct {
 	id int
 	color int
@@ -42,6 +45,7 @@ func (p *piece) Flip() {
 	// TODO: Flip coordinates.
 }
 
+// Space represents a space on the board.
 type space struct {
 	// TODO: Evaluate if we can just use *piece directly in the Board.
 	parent *piece
