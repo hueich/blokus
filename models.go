@@ -9,6 +9,20 @@ const (
 	Green = iota
 )
 
+func ColorName(c int) string {
+	switch c {
+		case Blue:
+			return "blue"
+		case Yellow:
+			return "yellow"
+		case Red:
+			return "red"
+		case Green:
+			return "green"
+	}
+	return "unknown"
+}
+
 type Player struct {
 	name string
 	color int
