@@ -44,7 +44,12 @@ func NewBoard(size int) *Board {
 // Piece represents a puzzle piece, made up of one or more square blocks.
 type Piece struct {
 	id int
+	// The player who owns this piece
 	player *Player
+	// The space this piece was placed in, or nil if it's not placed yet.
+	// This is the space where the (0,0) block is positioned.
+	// TODO: Evaluate if we can just use a Coord pointer instead, where nil pointer means not placed.
+	space *space
 	blocks []Coord
 	corners []Coord
 }
