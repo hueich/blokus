@@ -3,30 +3,30 @@ package blokus
 // Colors
 const (
 	UnknownColor = iota
-	Blue = iota
-	Yellow = iota
-	Red = iota
-	Green = iota
+	Blue         = iota
+	Yellow       = iota
+	Red          = iota
+	Green        = iota
 )
 
 func ColorName(c int) string {
 	switch c {
-		case Blue:
-			return "blue"
-		case Yellow:
-			return "yellow"
-		case Red:
-			return "red"
-		case Green:
-			return "green"
+	case Blue:
+		return "blue"
+	case Yellow:
+		return "yellow"
+	case Red:
+		return "red"
+	case Green:
+		return "green"
 	}
 	return "unknown"
 }
 
 type Player struct {
 	// Unique name of the player.
-	name string
-	color int
+	name   string
+	color  int
 	pieces []*Piece
 	// The corner the player starts from, with X and Y coordinates being either -1 or 1.
 	corner Coord
@@ -43,15 +43,15 @@ type Coord struct {
 
 // Board represents the game board.
 type Board struct {
-	grid [][]space
+	grid [][]*Piece
 }
 
 func NewBoard(size int) *Board {
 	b := Board{
-		grid: make([][]space, size),
+		grid: make([][]*Piece, size),
 	}
 	for i := range b.grid {
-		b.grid[i] = make([]space, size)
+		b.grid[i] = make([]*Piece, size)
 	}
 	return &b
 }
@@ -61,10 +61,9 @@ type Piece struct {
 	id int
 	// The player who owns this piece
 	player *Player
-	// The space this piece was placed in, or nil if it's not placed yet.
-	// This is the space where the (0,0) block is positioned.
-	// TODO: Evaluate if we can just use a Coord pointer instead, where nil pointer means not placed.
-	space *space
+	// The coordinate this piece was placed in, or nil if it's not placed yet.
+	// This is the coordinate where the (0,0) block is positioned.
+	location *Coord
 	// The square blocks this piece consists of. First block must be at (0,0) with other blocks relative to it.
 	blocks []Coord
 	// The corner squares of this piece, which was calculated from blocks and cached here.
@@ -73,6 +72,39 @@ type Piece struct {
 	rot int
 	// True if the piece is flipped.
 	flip bool
+}
+
+func NewPiece(id int, player *Player, blocks []Coord) *Piece {
+	return &Piece{
+		id:      id,
+		player:  player,
+		blocks:  blocks,
+		corners: getCorners(blocks),
+	}
+}
+
+func getCorners(blocks []Coord) []Coord {
+	corners := map[Coord]bool{}
+	// Add corners of all blocks
+	for _, block := range blocks {
+		corners[Coord{block.X - 1, block.Y - 1}] = true
+		corners[Coord{block.X - 1, block.Y + 1}] = true
+		corners[Coord{block.X + 1, block.Y - 1}] = true
+		corners[Coord{block.X + 1, block.Y + 1}] = true
+	}
+	// Remove corners that touch a block
+	for _, block := range blocks {
+		delete(corners, Coord{block.X, block.Y})
+		delete(corners, Coord{block.X + 1, block.Y})
+		delete(corners, Coord{block.X - 1, block.Y})
+		delete(corners, Coord{block.X, block.Y + 1})
+		delete(corners, Coord{block.X, block.Y - 1})
+	}
+	c := []Coord{}
+	for coord := range corners {
+		c = append(c, coord)
+	}
+	return c
 }
 
 func (p *Piece) GetColor() int {
@@ -85,25 +117,4 @@ func (p *Piece) Rotate() {
 
 func (p *Piece) Flip() {
 	// TODO: Flip coordinates.
-}
-
-// Space represents a space on the board.
-type space struct {
-	// TODO: Evaluate if we can just use *Piece directly in the Board.
-	piece *Piece
-}
-
-func NewSpace(piece *Piece) space {
-	return space{
-		piece: piece,
-	}
-}
-
-func (s *space) IsEmpty() bool {
-	return s.piece == nil
-}
-
-func (s *space) GetColor() int {
-	// TODO: Gracefully handle nil pointer.
-	return s.piece.GetColor()
 }
