@@ -46,3 +46,19 @@ func TestGetCorners_OneBlock(t *testing.T) {
 		t.Errorf("getCorners(): got %v, want %v", got, want)
 	}
 }
+
+func TestGetCorners_TwoBlock(t *testing.T) {
+	blocks := []Coord{
+		{0, 0},
+		{1, 0},
+	}
+	want := map[Coord]bool{
+		{-1, -1}: true,
+		{-1, 1}:  true,
+		{2, -1}:  true,
+		{2, 1}:   true,
+	}
+	if got := coordSliceToMap(getCorners(blocks)); !reflect.DeepEqual(got, want) {
+		t.Errorf("getCorners(): got %v, want %v", got, want)
+	}
+}
