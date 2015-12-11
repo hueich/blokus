@@ -111,10 +111,32 @@ func (p *Piece) GetColor() int {
 	return p.player.GetColor()
 }
 
+// Rotate piece clockwise 90 degrees
 func (p *Piece) Rotate() {
-	// TODO: Rotate coordinates clockwise.
+	for i, c := range p.blocks {
+		p.blocks[i] = rotateCoord(c)
+	}
+	for i, c := range p.corners {
+		p.corners[i] = rotateCoord(c)
+	}
+	p.rot = (p.rot + 1) % 4
 }
 
+func rotateCoord(c Coord) Coord {
+	return Coord{c.Y,-c.X}
+}
+
+// Flip piece along X axis
 func (p *Piece) Flip() {
-	// TODO: Flip coordinates.
+	for i, c := range p.blocks {
+		p.blocks[i] = flipCoord(c)
+	}
+	for i, c := range p.corners {
+		p.corners[i] = flipCoord(c)
+	}
+	p.flip = !p.flip
+}
+
+func flipCoord(c Coord) Coord {
+	return Coord{c.X, -c.Y}
 }
