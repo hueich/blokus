@@ -135,6 +135,21 @@ func TestRotatePiece(t *testing.T) {
 	if got, want := p.rot, 1; got != want {
 		t.Errorf("Rotation state: got %v, want %v", got, want)
 	}
+
+	p.Rotate()
+	if got, want := p.rot, 2; got != want {
+		t.Errorf("Rotation state: got %v, want %v", got, want)
+	}
+
+	p.Rotate()
+	if got, want := p.rot, 3; got != want {
+		t.Errorf("Rotation state: got %v, want %v", got, want)
+	}
+
+	p.Rotate()
+	if got, want := p.rot, 0; got != want {
+		t.Errorf("Rotation state: got %v, want %v", got, want)
+	}
 }
 
 func TestFlipCoord(t *testing.T) {
