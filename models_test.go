@@ -162,3 +162,27 @@ func TestFlipCoord(t *testing.T) {
 		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
 	}
 }
+
+func TestFlipPiece(t *testing.T) {
+	p := NewPiece(123, nil, []Coord{
+		{0, 0},
+		{1, 0},
+		{1, 1},
+		{2, 1},
+	})
+	bWant := p.blocks
+	for i, b := range bWant {
+		bWant[i] = flipCoord(b)
+	}
+	cWant := p.corners
+	for i, c := range cWant {
+		cWant[i] = flipCoord(c)
+	}
+	p.Flip()
+	if got := p.blocks; !reflect.DeepEqual(got, bWant) {
+		t.Errorf("Flipped blocks: got %v, want %v", got, bWant)
+	}
+	if got := p.corners; !reflect.DeepEqual(got, cWant) {
+		t.Errorf("Flipped corners: got %v, want %v", got, cWant)
+	}
+}
