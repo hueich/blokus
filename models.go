@@ -123,7 +123,7 @@ func (p *Piece) Rotate() {
 }
 
 func rotateCoord(c Coord) Coord {
-	return Coord{c.Y,-c.X}
+	return Coord{c.Y, -c.X}
 }
 
 // Flip piece along X axis

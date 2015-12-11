@@ -84,57 +84,81 @@ func TestGetCorners_ThreeBlockL(t *testing.T) {
 func TestRotateCoord(t *testing.T) {
 	var c Coord
 
-	c = Coord{0,0}
-	if got, want := rotateCoord(c), (Coord{0,0}); got != want {
+	c = Coord{0, 0}
+	if got, want := rotateCoord(c), (Coord{0, 0}); got != want {
 		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
 	}
 
-	c = Coord{1,2}
-	if got, want := rotateCoord(c), (Coord{2,-1}); got != want {
+	c = Coord{1, 2}
+	if got, want := rotateCoord(c), (Coord{2, -1}); got != want {
 		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
 	}
 
-	c = Coord{2,-1}
-	if got, want := rotateCoord(c), (Coord{-1,-2}); got != want {
+	c = Coord{2, -1}
+	if got, want := rotateCoord(c), (Coord{-1, -2}); got != want {
 		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
 	}
 
-	c = Coord{-1,-2}
-	if got, want := rotateCoord(c), (Coord{-2,1}); got != want {
+	c = Coord{-1, -2}
+	if got, want := rotateCoord(c), (Coord{-2, 1}); got != want {
 		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
 	}
 
-	c = Coord{-2,1}
-	if got, want := rotateCoord(c), (Coord{1,2}); got != want {
+	c = Coord{-2, 1}
+	if got, want := rotateCoord(c), (Coord{1, 2}); got != want {
 		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
+	}
+}
+
+func TestRotatePiece(t *testing.T) {
+	p := NewPiece(123, nil, []Coord{
+		{0, 0},
+		{1, 0},
+		{1, 1},
+		{2, 1},
+	})
+	bWant := p.blocks
+	for i, b := range bWant {
+		bWant[i] = rotateCoord(b)
+	}
+	cWant := p.corners
+	for i, c := range cWant {
+		cWant[i] = rotateCoord(c)
+	}
+	p.Rotate()
+	if got := p.blocks; !reflect.DeepEqual(got, bWant) {
+		t.Errorf("Rotated blocks: got %v, want %v", got, bWant)
+	}
+	if got := p.corners; !reflect.DeepEqual(got, cWant) {
+		t.Errorf("Rotated corners: got %v, want %v", got, cWant)
 	}
 }
 
 func TestFlipCoord(t *testing.T) {
 	var c Coord
 
-	c = Coord{0,0}
-	if got, want := flipCoord(c), (Coord{0,0}); got != want {
+	c = Coord{0, 0}
+	if got, want := flipCoord(c), (Coord{0, 0}); got != want {
 		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
 	}
 
-	c = Coord{1,2}
-	if got, want := flipCoord(c), (Coord{1,-2}); got != want {
+	c = Coord{1, 2}
+	if got, want := flipCoord(c), (Coord{1, -2}); got != want {
 		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
 	}
 
-	c = Coord{1,-2}
-	if got, want := flipCoord(c), (Coord{1,2}); got != want {
+	c = Coord{1, -2}
+	if got, want := flipCoord(c), (Coord{1, 2}); got != want {
 		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
 	}
 
-	c = Coord{-1,-2}
-	if got, want := flipCoord(c), (Coord{-1,2}); got != want {
+	c = Coord{-1, -2}
+	if got, want := flipCoord(c), (Coord{-1, 2}); got != want {
 		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
 	}
 
-	c = Coord{-1,2}
-	if got, want := flipCoord(c), (Coord{-1,-2}); got != want {
+	c = Coord{-1, 2}
+	if got, want := flipCoord(c), (Coord{-1, -2}); got != want {
 		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
 	}
 }
