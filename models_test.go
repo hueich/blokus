@@ -132,6 +132,9 @@ func TestRotatePiece(t *testing.T) {
 	if got := p.corners; !reflect.DeepEqual(got, cWant) {
 		t.Errorf("Rotated corners: got %v, want %v", got, cWant)
 	}
+	if got, want := p.rot, 1; got != want {
+		t.Errorf("Rotation state: got %v, want %v", got, want)
+	}
 }
 
 func TestFlipCoord(t *testing.T) {
@@ -184,5 +187,8 @@ func TestFlipPiece(t *testing.T) {
 	}
 	if got := p.corners; !reflect.DeepEqual(got, cWant) {
 		t.Errorf("Flipped corners: got %v, want %v", got, cWant)
+	}
+	if !p.flip {
+		t.Error("Flipped state: got false, want true")
 	}
 }
