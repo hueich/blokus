@@ -117,10 +117,12 @@ func TestRotatePiece(t *testing.T) {
 		{1, 1},
 		{2, 1},
 	})
+	bOrig := p.blocks
 	bWant := p.blocks
 	for i, b := range bWant {
 		bWant[i] = rotateCoord(b)
 	}
+	cOrig := p.corners
 	cWant := p.corners
 	for i, c := range cWant {
 		cWant[i] = rotateCoord(c)
@@ -149,6 +151,12 @@ func TestRotatePiece(t *testing.T) {
 	p.Rotate()
 	if got, want := p.rot, 0; got != want {
 		t.Errorf("Rotation state: got %v, want %v", got, want)
+	}
+	if got := p.blocks; !reflect.DeepEqual(got, bOrig) {
+		t.Errorf("4th rotation blocks: got %v, want %v", got, bOrig)
+	}
+	if got := p.corners; !reflect.DeepEqual(got, cOrig) {
+		t.Errorf("4th rotated corners: got %v, want %v", got, cOrig)
 	}
 }
 
