@@ -1,6 +1,7 @@
 package blokus
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -74,5 +75,42 @@ func TestAddPlayer(t *testing.T) {
 	p.pieces[0].Rotate()
 	if got, want := g.pieceSet[0].blocks[0], (Coord{3, 4}); got != want {
 		t.Errorf("Game pieces[0] blocks[0] after rotating player's piece: got %v, want %v", got, want)
+	}
+}
+
+func TestPlacePieceLocationOutOfBound(t *testing.T) {
+	g, err := NewGame(123, 10, []*Piece{})
+	if err != nil {
+		t.Fatalf("NewGame(): got %v, want no error", err)
+	}
+	coords := []Coord{
+		{-1, 5},
+		{5, -1},
+		{100, 5},
+		{5, 100},
+	}
+	for _, c := range coords {
+		err := g.PlacePiece(c, 1, 0, false)
+		if err == nil {
+			t.Errorf("PlacePiece(loc:%v): got no error, want location out of bounds error", c)
+		} else if !strings.Contains(err.Error(), "location out of bounds") {
+			t.Errorf("PlacePiece(loc:%v): got %v, want location out of bounds error", c, err)
+		}
+	}
+}
+
+func TestPlacePieceInvalidRotation(t *testing.T) {
+	g, err := NewGame(123, 10, []*Piece{})
+	if err != nil {
+		t.Fatalf("NewGame(): got %v, want no error", err)
+	}
+	rots := []int{-10, -1, 4, 100}
+	for _, r := range rots {
+		err := g.PlacePiece(Coord{1,1}, 1, r, false)
+		if err == nil {
+			t.Errorf("PlacePiece(rot:%v): got no error, want invalid rotation error", r)
+		} else if !strings.Contains(err.Error(), "rotation") {
+			t.Errorf("PlacePiece(rot:%v): got %v, want invalid rotation error", r, err)
+		}
 	}
 }
