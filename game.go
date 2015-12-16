@@ -15,8 +15,11 @@ type Game struct {
 	players []*Player
 	board   *Board
 	// Set of pieces every player starts with.
-	pieceSet   []*Piece
-	curPieceID int
+	pieceSet []*Piece
+	// ID to use when generating the next new piece.
+	nextPieceID int
+	// Index of the player whose turn it is.
+	curPlayerIndex int
 }
 
 func NewGame(id int, size int, pieces []*Piece) (*Game, error) {
@@ -24,17 +27,17 @@ func NewGame(id int, size int, pieces []*Piece) (*Game, error) {
 		return nil, fmt.Errorf("Board size must be between 1 and %v. Provided: %v", maxBoardSize, size)
 	}
 	return &Game{
-		id:         id,
-		board:      NewBoard(size),
-		pieceSet:   pieces,
-		curPieceID: 1,
+		id:          id,
+		board:       NewBoard(size),
+		pieceSet:    pieces,
+		nextPieceID: 1,
 	}, nil
 }
 
 func (g *Game) genPieceID() int {
 	// TODO: Implement locking or use database to keep track of IDs
-	id := g.curPieceID
-	g.curPieceID += 1
+	id := g.nextPieceID
+	g.nextPieceID += 1
 	return id
 }
 
@@ -88,5 +91,16 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	// TODO: Check if valid position
 	p.location = &loc
 	g.board.grid[loc.X][loc.Y] = p
+	if err := g.advanceTurn(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (g *Game) advanceTurn() error {
+	if len(g.players) == 0 {
+		return fmt.Errorf("Cannot advance turn with no players")
+	}
+	g.curPlayerIndex = (g.curPlayerIndex + 1) % len(g.players)
 	return nil
 }

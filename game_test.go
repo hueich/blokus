@@ -78,11 +78,16 @@ func TestAddPlayer(t *testing.T) {
 	}
 }
 
-func TestPlacePieceLocationOutOfBound(t *testing.T) {
+func newGameOrDie(t *testing.T) *Game {
 	g, err := NewGame(123, 10, []*Piece{})
 	if err != nil {
 		t.Fatalf("NewGame(): got %v, want no error", err)
 	}
+	return g
+}
+
+func TestPlacePieceLocationOutOfBound(t *testing.T) {
+	g := newGameOrDie(t)
 	coords := []Coord{
 		{-1, 5},
 		{5, -1},
@@ -100,17 +105,43 @@ func TestPlacePieceLocationOutOfBound(t *testing.T) {
 }
 
 func TestPlacePieceInvalidRotation(t *testing.T) {
-	g, err := NewGame(123, 10, []*Piece{})
-	if err != nil {
-		t.Fatalf("NewGame(): got %v, want no error", err)
-	}
+	g := newGameOrDie(t)
 	rots := []int{-10, -1, 4, 100}
 	for _, r := range rots {
-		err := g.PlacePiece(Coord{1,1}, 1, r, false)
+		err := g.PlacePiece(Coord{1, 1}, 1, r, false)
 		if err == nil {
 			t.Errorf("PlacePiece(rot:%v): got no error, want invalid rotation error", r)
 		} else if !strings.Contains(err.Error(), "rotation") {
 			t.Errorf("PlacePiece(rot:%v): got %v, want invalid rotation error", r, err)
 		}
+	}
+}
+
+func TestAdvanceTurnNoPlayers(t *testing.T) {
+	g := newGameOrDie(t)
+	err := g.advanceTurn()
+	if err == nil {
+		t.Errorf("advanceTurn() with no players: got no error, want error")
+	} else if !strings.Contains(err.Error(), "no players") {
+		t.Errorf("advanceTurn() with no players: got %v, want no players error")
+	}
+	if got := g.curPlayerIndex; got != 0 {
+		t.Fatalf("After advanceTurn() returned error, curPlayerIndex: got %v, want 0", got)
+	}
+}
+
+func TestAdvanceTurn(t *testing.T) {
+	g := newGameOrDie(t)
+	g.AddPlayer("foo", Red, Coord{-1, -1})
+	g.AddPlayer("bar", Blue, Coord{-1, 1})
+
+	if got, want := g.players[g.curPlayerIndex].name, "foo"; got != want {
+		t.Fatalf("Before advanceTurn(): got player %v, want player %v", got, want)
+	}
+	if err := g.advanceTurn(); err != nil {
+		t.Fatalf("advanceTurn() with players: got %v, want no error", err)
+	}
+	if got, want := g.players[g.curPlayerIndex].name, "bar"; got != want {
+		t.Errorf("After advanceTurn(): got player %v, want player %v", got, want)
 	}
 }
