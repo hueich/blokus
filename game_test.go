@@ -117,6 +117,30 @@ func TestPlacePieceInvalidRotation(t *testing.T) {
 	}
 }
 
+func TestPlacePieceOutOfTurn(t *testing.T) {
+	ps := []*Piece{
+		{blocks: []Coord{Coord{3, 4}}},
+		{blocks: []Coord{Coord{5, 6}}},
+	}
+	g, err := NewGame(123, 22, ps)
+	if err != nil {
+		t.Fatalf("NewGame(): got %v, want no error", err)
+	}
+	if err := g.AddPlayer("foo", Red, Coord{-1, -1}); err != nil {
+		t.Fatalf("AddPlayer(foo, Red): got %v, want no error", err)
+	}
+	if err := g.AddPlayer("bar", Blue, Coord{-1, 1}); err != nil {
+		t.Fatalf("AddPlayer(bar, Blue): got %v, want no error", err)
+	}
+	bluePiece := g.players[1].pieces[0]
+	err = g.PlacePiece(Coord{0, 0}, bluePiece.id, 0, false)
+	if err == nil {
+		t.Error("PlacePiece(): got no error, want out of turn error")
+	} else if !strings.Contains(err.Error(), "turn") {
+		t.Errorf("PlacePiece(): got error %v, want out of turn error")
+	}
+}
+
 func TestAdvanceTurnNoPlayers(t *testing.T) {
 	g := newGameOrDie(t)
 	err := g.advanceTurn()

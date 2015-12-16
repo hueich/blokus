@@ -80,7 +80,9 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	if p == nil {
 		return fmt.Errorf("Could not find piece with ID: %v", pieceID)
 	}
-	// TODO: Check if correct player turn
+	if p.player != g.players[g.curPlayerIndex] {
+		return fmt.Errorf("It's player %v's turn, but piece belongs to player %v", g.players[g.curPlayerIndex].name, p.player.name)
+	}
 	// Rotate/flip to specified position.
 	for p.rot != rot {
 		p.Rotate()
