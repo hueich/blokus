@@ -42,8 +42,19 @@ func (g *Game) genPieceID() int {
 }
 
 func (g *Game) AddPlayer(name string, color int, corner Coord) error {
-	// TODO: Check corner
-	// TODO: Check color is valid and not taken
+	// TODO: Check valid color
+	// TODO: Check valid corner
+	for _, p := range g.players {
+		if p.name == name {
+			return fmt.Errorf("Player %v already in the game", name)
+		}
+		if p.color == color {
+			return fmt.Errorf("Color %v already taken by player %v", ColorName(color), p.name)
+		}
+		if p.corner == corner {
+			return fmt.Errorf("Corner aleady occupied by player %v", p.name)
+		}
+	}
 	p := &Player{
 		name:   name,
 		color:  color,

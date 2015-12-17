@@ -5,6 +5,14 @@ import (
 	"testing"
 )
 
+func newGameOrDie(t *testing.T) *Game {
+	g, err := NewGame(123, 10, []*Piece{})
+	if err != nil {
+		t.Fatalf("NewGame(): got %v, want no error", err)
+	}
+	return g
+}
+
 func TestNewGame(t *testing.T) {
 	p := &Piece{blocks: []Coord{Coord{3, 4}}}
 	g, err := NewGame(123, 22, []*Piece{p})
@@ -78,12 +86,49 @@ func TestAddPlayer(t *testing.T) {
 	}
 }
 
-func newGameOrDie(t *testing.T) *Game {
-	g, err := NewGame(123, 10, []*Piece{})
-	if err != nil {
-		t.Fatalf("NewGame(): got %v, want no error", err)
+func TestAddPlayerDupeName(t *testing.T) {
+	g := newGameOrDie(t)
+	if err := g.AddPlayer("foo", Blue, Coord{1, 1}); err != nil {
+		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
-	return g
+
+	err := g.AddPlayer("foo", Yellow, Coord{-1, -1})
+	if err == nil {
+		t.Fatalf("AddPlayer duplicate name: got no error, want error")
+	}
+	if name := "foo"; !strings.Contains(err.Error(), name) {
+		t.Errorf("AddPlayer duplicate name: got error %v, want duplicate name error to contain %v", err, name)
+	}
+}
+
+func TestAddPlayerDupeColor(t *testing.T) {
+	g := newGameOrDie(t)
+	if err := g.AddPlayer("foo", Blue, Coord{1, 1}); err != nil {
+		t.Fatalf("Add first player: got error %v, want no error", err)
+	}
+
+	err := g.AddPlayer("bar", Blue, Coord{-1, -1})
+	if err == nil {
+		t.Fatalf("AddPlayer duplicate color: got no error, want error")
+	}
+	if color := ColorName(Blue); !strings.Contains(err.Error(), color) {
+		t.Errorf("AddPlayer duplicate color: got error %v, want duplicate color error to contain %v", err, color)
+	}
+}
+
+func TestAddPlayerDupeCorner(t *testing.T) {
+	g := newGameOrDie(t)
+	if err := g.AddPlayer("foo", Blue, Coord{1, 1}); err != nil {
+		t.Fatalf("Add first player: got error %v, want no error", err)
+	}
+
+	err := g.AddPlayer("bar", Yellow, Coord{1, 1})
+	if err == nil {
+		t.Fatalf("AddPlayer duplicate corner: got no error, want error")
+	}
+	if !strings.Contains(err.Error(), "Corner") {
+		t.Errorf("AddPlayer duplicate corner: got error %v, want duplicate corner error")
+	}
 }
 
 func TestPlacePieceLocationOutOfBound(t *testing.T) {
