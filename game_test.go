@@ -86,33 +86,46 @@ func TestAddPlayer(t *testing.T) {
 	}
 }
 
+func TestAddPlayerInvalidColor(t *testing.T) {
+	g := newGameOrDie(t)
+	err := g.AddPlayer("foo", 999, Coord{1, 1})
+	if err == nil {
+		t.Fatalf("AddPlayer() with invalid color: got no error, want error")
+	}
+	if colorValue := "999"; !strings.Contains(err.Error(), colorValue) {
+		t.Errorf("AddPlayer() with invalid color: got error %v, want error to contain %v", err, colorValue)
+	}
+}
+
 func TestAddPlayerDupeName(t *testing.T) {
 	g := newGameOrDie(t)
-	if err := g.AddPlayer("foo", Blue, Coord{1, 1}); err != nil {
+	name := "foo"
+	if err := g.AddPlayer(name, Blue, Coord{1, 1}); err != nil {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	err := g.AddPlayer("foo", Yellow, Coord{-1, -1})
+	err := g.AddPlayer(name, Yellow, Coord{-1, -1})
 	if err == nil {
 		t.Fatalf("AddPlayer duplicate name: got no error, want error")
 	}
-	if name := "foo"; !strings.Contains(err.Error(), name) {
+	if !strings.Contains(err.Error(), name) {
 		t.Errorf("AddPlayer duplicate name: got error %v, want duplicate name error to contain %v", err, name)
 	}
 }
 
 func TestAddPlayerDupeColor(t *testing.T) {
 	g := newGameOrDie(t)
-	if err := g.AddPlayer("foo", Blue, Coord{1, 1}); err != nil {
+	color := Blue
+	if err := g.AddPlayer("foo", color, Coord{1, 1}); err != nil {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	err := g.AddPlayer("bar", Blue, Coord{-1, -1})
+	err := g.AddPlayer("bar", color, Coord{-1, -1})
 	if err == nil {
 		t.Fatalf("AddPlayer duplicate color: got no error, want error")
 	}
-	if color := ColorName(Blue); !strings.Contains(err.Error(), color) {
-		t.Errorf("AddPlayer duplicate color: got error %v, want duplicate color error to contain %v", err, color)
+	if colorName := ColorName(color); !strings.Contains(err.Error(), colorName) {
+		t.Errorf("AddPlayer duplicate color: got error %v, want duplicate color error to contain %v", err, colorName)
 	}
 }
 
@@ -127,7 +140,7 @@ func TestAddPlayerDupeCorner(t *testing.T) {
 		t.Fatalf("AddPlayer duplicate corner: got no error, want error")
 	}
 	if !strings.Contains(err.Error(), "Corner") {
-		t.Errorf("AddPlayer duplicate corner: got error %v, want duplicate corner error")
+		t.Errorf("AddPlayer duplicate corner: got error %v, want duplicate corner error", err)
 	}
 }
 

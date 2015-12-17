@@ -42,7 +42,9 @@ func (g *Game) genPieceID() int {
 }
 
 func (g *Game) AddPlayer(name string, color int, corner Coord) error {
-	// TODO: Check valid color
+	if ColorName(color) == "unknown" {
+		return fmt.Errorf("Unknown color value %v", color)
+	}
 	// TODO: Check valid corner
 	for _, p := range g.players {
 		if p.name == name {
