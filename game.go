@@ -114,9 +114,15 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	if p.flip != flip {
 		p.Flip()
 	}
-	// TODO: Check if valid placement
-	p.location = &loc
-	g.board.grid[loc.X][loc.Y] = p  // TODO: Update other cells to point to piece
+
+	if err := g.checkPiecePlacement(p, loc); err != nil {
+		return err
+	}
+	p.location = &Coord{loc.X,loc.Y}
+	for _, b := range p.blocks {
+		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p
+	}
+
 	if err := g.advanceTurn(); err != nil {
 		return err
 	}
