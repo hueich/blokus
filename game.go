@@ -96,14 +96,14 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	if p.player != g.players[g.curPlayerIndex] {
 		return fmt.Errorf("It's player %v's turn, but piece belongs to player %v", g.players[g.curPlayerIndex].name, p.player.name)
 	}
-	// Rotate/flip to specified position.
+	// Rotate/flip to specified orientation.
 	for p.rot != rot {
 		p.Rotate()
 	}
 	if p.flip != flip {
 		p.Flip()
 	}
-	// TODO: Check if valid position
+	// TODO: Check if valid placement
 	p.location = &loc
 	g.board.grid[loc.X][loc.Y] = p
 	if err := g.advanceTurn(); err != nil {

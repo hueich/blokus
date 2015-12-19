@@ -62,7 +62,7 @@ type Piece struct {
 	// The player who owns this piece
 	player *Player
 	// The coordinate this piece was placed in, or nil if it's not placed yet.
-	// This is the coordinate where the (0,0) block is positioned.
+	// This is the coordinate where the (0,0) block is located.
 	location *Coord
 	// The square blocks this piece consists of. First block must be at (0,0) with other blocks relative to it.
 	blocks []Coord
