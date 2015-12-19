@@ -28,7 +28,7 @@ type Player struct {
 	name   string
 	color  int
 	pieces []*Piece
-	// The corner the player starts from, with X and Y coordinates being either -1 or 1.
+	// The corner the player starts from, e.g. [-1,-1], or [-1,20] for a size 20 board.
 	corner Coord
 }
 

@@ -8,6 +8,12 @@ const (
 	// Default game board size.
 	DefaultBoardSize = 20
 	maxBoardSize     = 100
+	neighbors = []Coord{
+		{-1, 0},
+		{1, 0},
+		{0, -1},
+		{0, 1},
+	}
 )
 
 type Game struct {
@@ -39,6 +45,10 @@ func (g *Game) genPieceID() int {
 	id := g.nextPieceID
 	g.nextPieceID += 1
 	return id
+}
+
+func (g *Game) isOutOfBound(c Coord) bool {
+	return c.X < 0 || c.Y < 0 || c.X >= len(g.board.grid) || c.Y >= len(g.board.grid[0])
 }
 
 func (g *Game) AddPlayer(name string, color int, corner Coord) error {
@@ -74,8 +84,8 @@ func (g *Game) AddPlayer(name string, color int, corner Coord) error {
 
 func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	// Preliminary input validation.
-	if loc.X < 0 || loc.Y < 0 || loc.X >= len(g.board.grid) || loc.Y >= len(g.board.grid[0]) {
-		return fmt.Errorf("Piece location out of bounds: %v,%v", loc.X, loc.Y)
+	if g.isOutOfBound(loc) {
+		return fmt.Errorf("Piece placement out of bounds: %v,%v", loc.X, loc.Y)
 	}
 	if rot < 0 || rot >= 4 {
 		return fmt.Errorf("Invalid piece rotation: %v", rot)
@@ -93,10 +103,11 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	if p == nil {
 		return fmt.Errorf("Could not find piece with ID: %v", pieceID)
 	}
+	// Check if it's this player's turn.
 	if p.player != g.players[g.curPlayerIndex] {
 		return fmt.Errorf("It's player %v's turn, but piece belongs to player %v", g.players[g.curPlayerIndex].name, p.player.name)
 	}
-	// Rotate/flip to specified orientation.
+	// Rotate/flip piece to specified orientation.
 	for p.rot != rot {
 		p.Rotate()
 	}
@@ -105,9 +116,62 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	}
 	// TODO: Check if valid placement
 	p.location = &loc
-	g.board.grid[loc.X][loc.Y] = p
+	g.board.grid[loc.X][loc.Y] = p  // TODO: Update other cells to point to piece
 	if err := g.advanceTurn(); err != nil {
 		return err
+	}
+	return nil
+}
+
+// Checks whether piece placement is valid. Returns error if invalid.
+func (g *Game) checkPiecePlacement(p *Piece, loc Coord) error {
+	if p.player == nil {
+		return fmt.Errorf("Piece has no owning player (this shouldn't happen)")
+	}
+
+	for _, b := range p.blocks {
+		// Change from relative to absolute coordinate.
+		b = Coord{b.X+loc.X, b.Y+loc.Y}
+		// Check that every block is inside the board
+		if g.isOutOfBound(b) {
+			return fmt.Errorf("Piece placement out of bounds")
+		}
+		// Check that every block is on an empty space
+		if g.grid[b.X][b.Y] != nil {
+			return fmt.Errorf("Cell %v,%v is occupied", b.X, b.Y)
+		}
+		// Check that every block is not next to a piece of same color
+		for _, n := range neighbors {
+			n = Coord{b.X+n.X, b.Y+n.Y}
+			if g.isOutOfBound(n) {
+				continue
+			}
+			if s := g.grid[n.X][n.Y]; s != nil && s.player == p.player {
+				return fmt.Errorf("Piece is next to another %v piece", ColorName(p.player.color))
+			}
+		}
+	}
+
+	validCorner := false
+	for _, c := range p.corners {
+		// Change from relative to absolute coordinate.
+		c = Coord{c.X+loc.X, c.Y+loc.Y}
+		if g.isOutOfBound(c) {
+			continue
+		}
+		// Check that at least one corner is touching a block of same color.
+		if s := g.grid[c.X][c.Y]; s != nil && s.player == p.player {
+			validCorner = true
+			break
+		}
+		// Check that the corner is the player's starting corner.
+		if c == p.player.corner {
+			validCorner = true
+			break
+		}
+	}
+	if !validCorner {
+		return fmt.Errorf("Piece has no corner touching another %v piece or the player's starting corner", ColorName(p.player.color))
 	}
 	return nil
 }
