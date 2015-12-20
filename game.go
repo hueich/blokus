@@ -8,7 +8,10 @@ const (
 	// Default game board size.
 	DefaultBoardSize = 20
 	maxBoardSize     = 100
-	neighbors = []Coord{
+)
+
+var (
+	neighbors = [4]Coord{
 		{-1, 0},
 		{1, 0},
 		{0, -1},
@@ -143,7 +146,7 @@ func (g *Game) checkPiecePlacement(p *Piece, loc Coord) error {
 			return fmt.Errorf("Piece placement out of bounds")
 		}
 		// Check that every block is on an empty space
-		if g.grid[b.X][b.Y] != nil {
+		if g.board.grid[b.X][b.Y] != nil {
 			return fmt.Errorf("Cell %v,%v is occupied", b.X, b.Y)
 		}
 		// Check that every block is not next to a piece of same color
@@ -152,7 +155,7 @@ func (g *Game) checkPiecePlacement(p *Piece, loc Coord) error {
 			if g.isOutOfBound(n) {
 				continue
 			}
-			if s := g.grid[n.X][n.Y]; s != nil && s.player == p.player {
+			if s := g.board.grid[n.X][n.Y]; s != nil && s.player == p.player {
 				return fmt.Errorf("Piece is next to another %v piece", ColorName(p.player.color))
 			}
 		}
@@ -166,7 +169,7 @@ func (g *Game) checkPiecePlacement(p *Piece, loc Coord) error {
 			continue
 		}
 		// Check that at least one corner is touching a block of same color.
-		if s := g.grid[c.X][c.Y]; s != nil && s.player == p.player {
+		if s := g.board.grid[c.X][c.Y]; s != nil && s.player == p.player {
 			validCorner = true
 			break
 		}

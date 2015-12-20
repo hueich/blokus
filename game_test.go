@@ -144,7 +144,7 @@ func TestAddPlayerDupeCorner(t *testing.T) {
 	}
 }
 
-func TestPlacePieceLocationOutOfBound(t *testing.T) {
+func TestPlacePieceOutOfBound(t *testing.T) {
 	g := newGameOrDie(t)
 	coords := []Coord{
 		{-1, 5},
@@ -155,9 +155,9 @@ func TestPlacePieceLocationOutOfBound(t *testing.T) {
 	for _, c := range coords {
 		err := g.PlacePiece(c, 1, 0, false)
 		if err == nil {
-			t.Errorf("PlacePiece(loc:%v): got no error, want location out of bounds error", c)
-		} else if !strings.Contains(err.Error(), "location out of bounds") {
-			t.Errorf("PlacePiece(loc:%v): got %v, want location out of bounds error", c, err)
+			t.Errorf("PlacePiece(loc:%v): got no error, want out of bounds error", c)
+		} else if !strings.Contains(err.Error(), "out of bounds") {
+			t.Errorf("PlacePiece(loc:%v): got %v, want out of bounds error", c, err)
 		}
 	}
 }
@@ -198,6 +198,20 @@ func TestPlacePieceOutOfTurn(t *testing.T) {
 		t.Errorf("PlacePiece(): got error %v, want out of turn error")
 	}
 }
+
+func TestPiecePlacementNilPlayer(t *testing.T) {
+	g := newGameOrDie(t)
+	p := NewPiece(123, nil, []Coord{})
+	err := g.checkPiecePlacement(p, Coord{8,9})
+	if err == nil {
+		t.Fatalf("checkPiecePlacement(): got no error, want error")
+	}
+	if !strings.Contains(err.Error(), "no owning player") {
+		t.Errorf("checkPiecePlacement(): got error %v, want no owning player error")
+	}
+}
+
+
 
 func TestAdvanceTurnNoPlayers(t *testing.T) {
 	g := newGameOrDie(t)
