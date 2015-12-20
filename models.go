@@ -83,6 +83,10 @@ func NewPiece(id int, player *Player, blocks []Coord) *Piece {
 	}
 }
 
+func NewTemplatePiece(blocks []Coord) *Piece {
+	return NewPiece(0, nil, blocks)
+}
+
 func getCorners(blocks []Coord) []Coord {
 	corners := map[Coord]bool{}
 	// Add corners of all blocks
