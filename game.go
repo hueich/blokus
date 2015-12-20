@@ -118,7 +118,7 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 		p.Flip()
 	}
 
-	if err := g.checkPiecePlacement(p, loc); err != nil {
+	if err := g.checkPiecePlacement(loc, p); err != nil {
 		return err
 	}
 	p.location = &Coord{loc.X,loc.Y}
@@ -133,7 +133,7 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 }
 
 // Checks whether piece placement is valid. Returns error if invalid.
-func (g *Game) checkPiecePlacement(p *Piece, loc Coord) error {
+func (g *Game) checkPiecePlacement(loc Coord, p *Piece) error {
 	if p.player == nil {
 		return fmt.Errorf("Piece has no owning player (this shouldn't happen)")
 	}
@@ -165,16 +165,17 @@ func (g *Game) checkPiecePlacement(p *Piece, loc Coord) error {
 	for _, c := range p.corners {
 		// Change from relative to absolute coordinate.
 		c = Coord{c.X+loc.X, c.Y+loc.Y}
+
+		// Check that the corner is the player's starting corner.
+		if c == p.player.corner {
+			validCorner = true
+			break
+		}
 		if g.isOutOfBound(c) {
 			continue
 		}
 		// Check that at least one corner is touching a block of same color.
 		if s := g.board.grid[c.X][c.Y]; s != nil && s.player == p.player {
-			validCorner = true
-			break
-		}
-		// Check that the corner is the player's starting corner.
-		if c == p.player.corner {
 			validCorner = true
 			break
 		}
