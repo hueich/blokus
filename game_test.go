@@ -201,7 +201,7 @@ func TestPlacePieceOutOfTurn(t *testing.T) {
 	if err == nil {
 		t.Fatal("PlacePiece(): got no error, want out of turn error")
 	} else if !strings.Contains(err.Error(), "turn") {
-		t.Errorf("PlacePiece(): got error %v, want out of turn error")
+		t.Errorf("PlacePiece(): got error %v, want out of turn error", err)
 	}
 }
 
@@ -220,7 +220,7 @@ func TestPlacePieceValid(t *testing.T) {
 	}
 	for _, s := range spaces {
 		if got := g.board.grid[s.X][s.Y]; got != p {
-			t.Errorf("Board space [%v]: got %v, want occupied by piece %v", got, p.id)
+			t.Errorf("Board space [%v]: got %v, want occupied by piece %v", s, got, p.id)
 		}
 	}
 	if p.location == nil {
@@ -229,7 +229,8 @@ func TestPlacePieceValid(t *testing.T) {
 	if got, want := *p.location, (Coord{0, 0}); got != want {
 		t.Errorf("Piece location: got %v, want %v", got, want)
 	}
-	if got, want := g.curPlayerIndex, 1; got != want {
+	// Should not advance turn
+	if got, want := g.curPlayerIndex, 0; got != want {
 		t.Errorf("Player turn after placing piece: got %v, want %v", got, want)
 	}
 }
@@ -242,7 +243,7 @@ func TestCheckPiecePlacementNilPlayer(t *testing.T) {
 		t.Fatalf("checkPiecePlacement(): got no error, want error")
 	}
 	if !strings.Contains(err.Error(), "no owning player") {
-		t.Errorf("checkPiecePlacement(): got error %v, want no owning player error")
+		t.Errorf("checkPiecePlacement(): got error %v, want no owning player error", err)
 	}
 }
 
@@ -259,9 +260,6 @@ func TestCheckPiecePlacementWithValidTouchingCorner(t *testing.T) {
 	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[0].id, 0, false); err != nil {
 		t.Fatalf("PlacePiece(blue 1st piece): got %v, want no error", err)
 	}
-	if err := g.PlacePiece(Coord{7, 9}, g.players[1].pieces[0].id, 0, false); err != nil {
-		t.Fatalf("PlacePiece(yellow 1st piece): got %v, want no error", err)
-	}
 
 	p := g.players[0].pieces[1]
 	if err := g.checkPiecePlacement(Coord{3, 1}, p); err != nil {
@@ -276,7 +274,7 @@ func TestCheckPiecePlacementNoValidCorner(t *testing.T) {
 		t.Fatalf("checkPiecePlacement(): got no error, want error")
 	}
 	if !strings.Contains(err.Error(), "no corner touching") {
-		t.Errorf("checkPiecePlacement(): got error %v, want no corner touching error")
+		t.Errorf("checkPiecePlacement(): got error %v, want no corner touching error", err)
 	}
 }
 
@@ -314,9 +312,6 @@ func TestCheckPiecePlacementTouchingSameColor(t *testing.T) {
 	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[0].id, 0, false); err != nil {
 		t.Fatalf("PlacePiece(blue 1st piece): got %v, want no error", err)
 	}
-	if err := g.PlacePiece(Coord{7, 9}, g.players[1].pieces[0].id, 0, false); err != nil {
-		t.Fatalf("PlacePiece(yellow 1st piece): got %v, want no error", err)
-	}
 
 	p := g.players[0].pieces[1]
 	err := g.checkPiecePlacement(Coord{2, 1}, p)
@@ -340,14 +335,14 @@ func TestCheckPiecePlacementTouchingAnotherColor(t *testing.T) {
 
 func TestAdvanceTurnNoPlayers(t *testing.T) {
 	g := newGameOrDie(t)
-	err := g.advanceTurn()
+	err := g.AdvanceTurn()
 	if err == nil {
-		t.Errorf("advanceTurn() with no players: got no error, want error")
+		t.Errorf("AdvanceTurn() with no players: got no error, want error")
 	} else if !strings.Contains(err.Error(), "no players") {
-		t.Errorf("advanceTurn() with no players: got %v, want no players error")
+		t.Errorf("AdvanceTurn() with no players: got %v, want no players error")
 	}
 	if got := g.curPlayerIndex; got != 0 {
-		t.Fatalf("After advanceTurn() returned error, curPlayerIndex: got %v, want 0", got)
+		t.Fatalf("After AdvanceTurn() returned error, curPlayerIndex: got %v, want 0", got)
 	}
 }
 
@@ -357,12 +352,12 @@ func TestAdvanceTurn(t *testing.T) {
 	g.AddPlayer("bar", Blue, Coord{-1, 1})
 
 	if got, want := g.players[g.curPlayerIndex].name, "foo"; got != want {
-		t.Fatalf("Before advanceTurn(): got player %v, want player %v", got, want)
+		t.Fatalf("Before AdvanceTurn(): got player %v, want player %v", got, want)
 	}
-	if err := g.advanceTurn(); err != nil {
-		t.Fatalf("advanceTurn() with players: got %v, want no error", err)
+	if err := g.AdvanceTurn(); err != nil {
+		t.Fatalf("AdvanceTurn() with players: got %v, want no error", err)
 	}
 	if got, want := g.players[g.curPlayerIndex].name, "bar"; got != want {
-		t.Errorf("After advanceTurn(): got player %v, want player %v", got, want)
+		t.Errorf("After AdvanceTurn(): got player %v, want player %v", got, want)
 	}
 }

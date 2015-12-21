@@ -85,6 +85,8 @@ func (g *Game) AddPlayer(name string, color int, corner Coord) error {
 	return nil
 }
 
+// Place the piece, unless there's an error.
+// This does not check for winner nor advance player turn.
 func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	// Preliminary input validation.
 	if g.isOutOfBound(loc) {
@@ -124,10 +126,6 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	p.location = &Coord{loc.X, loc.Y}
 	for _, b := range p.blocks {
 		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p
-	}
-
-	if err := g.advanceTurn(); err != nil {
-		return err
 	}
 	return nil
 }
@@ -186,7 +184,7 @@ func (g *Game) checkPiecePlacement(loc Coord, p *Piece) error {
 	return nil
 }
 
-func (g *Game) advanceTurn() error {
+func (g *Game) AdvanceTurn() error {
 	if len(g.players) == 0 {
 		return fmt.Errorf("Cannot advance turn with no players")
 	}
