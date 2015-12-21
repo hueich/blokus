@@ -108,6 +108,8 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	if p == nil {
 		return fmt.Errorf("Could not find piece with ID: %v", pieceID)
 	}
+	// TODO: Check if piece is already placed
+
 	// Check if it's this player's turn.
 	if p.player != g.players[g.curPlayerIndex] {
 		return fmt.Errorf("It's player %v's turn, but piece belongs to player %v", g.players[g.curPlayerIndex].name, p.player.name)
@@ -123,10 +125,13 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	if err := g.checkPiecePlacement(loc, p); err != nil {
 		return err
 	}
+
+	// Actually place the piece.
 	p.location = &Coord{loc.X, loc.Y}
 	for _, b := range p.blocks {
 		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p
 	}
+
 	return nil
 }
 
@@ -184,6 +189,7 @@ func (g *Game) checkPiecePlacement(loc Coord, p *Piece) error {
 	return nil
 }
 
+// Advances the game turn to the next player.
 func (g *Game) AdvanceTurn() error {
 	if len(g.players) == 0 {
 		return fmt.Errorf("Cannot advance turn with no players")
