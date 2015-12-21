@@ -121,7 +121,7 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	if err := g.checkPiecePlacement(loc, p); err != nil {
 		return err
 	}
-	p.location = &Coord{loc.X,loc.Y}
+	p.location = &Coord{loc.X, loc.Y}
 	for _, b := range p.blocks {
 		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p
 	}
@@ -140,7 +140,7 @@ func (g *Game) checkPiecePlacement(loc Coord, p *Piece) error {
 
 	for _, b := range p.blocks {
 		// Change from relative to absolute coordinate.
-		b = Coord{b.X+loc.X, b.Y+loc.Y}
+		b = Coord{b.X + loc.X, b.Y + loc.Y}
 		// Check that every block is inside the board
 		if g.isOutOfBound(b) {
 			return fmt.Errorf("Piece placement out of bounds")
@@ -151,7 +151,7 @@ func (g *Game) checkPiecePlacement(loc Coord, p *Piece) error {
 		}
 		// Check that every block is not next to a piece of same color
 		for _, n := range neighbors {
-			n = Coord{b.X+n.X, b.Y+n.Y}
+			n = Coord{b.X + n.X, b.Y + n.Y}
 			if g.isOutOfBound(n) {
 				continue
 			}
@@ -164,7 +164,7 @@ func (g *Game) checkPiecePlacement(loc Coord, p *Piece) error {
 	validCorner := false
 	for _, c := range p.corners {
 		// Change from relative to absolute coordinate.
-		c = Coord{c.X+loc.X, c.Y+loc.Y}
+		c = Coord{c.X + loc.X, c.Y + loc.Y}
 
 		// Check that the corner is the player's starting corner.
 		if c == p.player.corner {
