@@ -193,6 +193,22 @@ func TestPlacePieceInvalidRotation(t *testing.T) {
 	}
 }
 
+func TestPlacePieceAlreadyPlaced(t *testing.T) {
+	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
+
+	p := g.players[0].pieces[0]
+	if err := g.PlacePiece(Coord{0, 0}, p.id, 0, false); err != nil {
+		t.Fatalf("PlacePiece 1st time: got %v, want no error", err)
+	}
+
+	err := g.PlacePiece(Coord{2, 2}, p.id, 0, false)
+	if err == nil {
+		t.Fatal("PlacePiece() 2nd time: got no error, want piece already placed error")
+	} else if !strings.Contains(err.Error(), "already placed") {
+		t.Errorf("PlacePiece() 2nd time: got error %v, want piece already placed error", err)
+	}
+}
+
 func TestPlacePieceOutOfTurn(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
 

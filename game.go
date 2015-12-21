@@ -108,7 +108,11 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	if p == nil {
 		return fmt.Errorf("Could not find piece with ID: %v", pieceID)
 	}
-	// TODO: Check if piece is already placed
+
+	// Check if piece is already placed.
+	if p.location != nil {
+		return fmt.Errorf("Piece is already placed at [%v]", p.location)
+	}
 
 	// Check if it's this player's turn.
 	if p.player != g.players[g.curPlayerIndex] {
