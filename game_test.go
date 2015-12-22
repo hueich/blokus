@@ -135,6 +135,42 @@ func TestAddPlayerDupeCorner(t *testing.T) {
 	}
 }
 
+func TestCheckPlayerCornerFormatWithValidValues(t *testing.T) {
+	g := newGameOrDie(t)
+
+	corners := []Coord{
+		{-1, -1},
+		{-1, 10},
+		{10, -1},
+		{10, 10},
+	}
+	for _, c := range corners {
+		if err := g.checkPlayerCornerFormat(c); err != nil {
+			t.Errorf("checkPlayerCornerFormat(%v): got %v, want no error", c, err)
+		}
+	}
+}
+
+func TestCheckPlayerCornerFormatWithInvalidValues(t *testing.T) {
+	g := newGameOrDie(t)
+
+	corners := []Coord{
+		{-2, -1},
+		{0, -1},
+		{-1, 9},
+		{-1, 11},
+		{9, -1},
+		{11, -1},
+		{10, 9},
+		{10, 11},
+	}
+	for _, c := range corners {
+		if err := g.checkPlayerCornerFormat(c); err == nil {
+			t.Errorf("checkPlayerCornerFormat(%v): got no error, want error", c)
+		}
+	}
+}
+
 func newGameWithTwoPlayersAndTwoPieces(t *testing.T, size int) *Game {
 	tps := []*Piece{
 		NewTemplatePiece([]Coord{{0, 0}, {1, 0}, {2, 0}}),
