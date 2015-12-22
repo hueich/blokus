@@ -46,7 +46,7 @@ func NewGame(id int, size int, pieces []*Piece) (*Game, error) {
 func (g *Game) genPieceID() int {
 	// TODO: Implement locking or use database to keep track of IDs
 	id := g.nextPieceID
-	g.nextPieceID += 1
+	g.nextPieceID++
 	return id
 }
 

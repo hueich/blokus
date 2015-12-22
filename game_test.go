@@ -355,7 +355,7 @@ func TestAdvanceTurnNoPlayers(t *testing.T) {
 	if err == nil {
 		t.Errorf("AdvanceTurn() with no players: got no error, want error")
 	} else if !strings.Contains(err.Error(), "no players") {
-		t.Errorf("AdvanceTurn() with no players: got %v, want no players error")
+		t.Errorf("AdvanceTurn() with no players: got %v, want no players error", err)
 	}
 	if got := g.curPlayerIndex; got != 0 {
 		t.Fatalf("After AdvanceTurn() returned error, curPlayerIndex: got %v, want 0", got)
