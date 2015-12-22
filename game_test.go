@@ -88,12 +88,8 @@ func TestAddPlayer(t *testing.T) {
 
 func TestAddPlayerInvalidColor(t *testing.T) {
 	g := newGameOrDie(t)
-	err := g.AddPlayer("foo", 999, Coord{10, 10})
-	if err == nil {
-		t.Fatalf("AddPlayer() with invalid color: got no error, want error")
-	}
-	if colorValue := "999"; !strings.Contains(err.Error(), colorValue) {
-		t.Errorf("AddPlayer() with invalid color: got error %v, want error to contain %v", err, colorValue)
+	if err, colorValue := g.AddPlayer("foo", 999, Coord{10, 10}), "999"; err == nil || !strings.Contains(err.Error(), colorValue) {
+		t.Errorf("AddPlayer() with invalid color: got %v, want error to contain %v", err, colorValue)
 	}
 }
 
@@ -111,12 +107,8 @@ func TestAddPlayerDupeName(t *testing.T) {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	err := g.AddPlayer(name, Yellow, Coord{-1, -1})
-	if err == nil {
-		t.Fatalf("AddPlayer duplicate name: got no error, want error")
-	}
-	if !strings.Contains(err.Error(), name) {
-		t.Errorf("AddPlayer duplicate name: got error %v, want duplicate name error to contain %v", err, name)
+	if err := g.AddPlayer(name, Yellow, Coord{-1, -1}); err == nil || !strings.Contains(err.Error(), name) {
+		t.Errorf("AddPlayer() with duplicate name: got %v, want duplicate name error containing %v", err, name)
 	}
 }
 
@@ -127,12 +119,8 @@ func TestAddPlayerDupeColor(t *testing.T) {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	err := g.AddPlayer("bar", color, Coord{-1, -1})
-	if err == nil {
-		t.Fatalf("AddPlayer duplicate color: got no error, want error")
-	}
-	if colorName := ColorName(color); !strings.Contains(err.Error(), colorName) {
-		t.Errorf("AddPlayer duplicate color: got error %v, want duplicate color error to contain %v", err, colorName)
+	if err, colorName := g.AddPlayer("bar", color, Coord{-1, -1}), ColorName(color); err == nil || !strings.Contains(err.Error(), colorName) {
+		t.Errorf("AddPlayer() with duplicate color: got %v, want duplicate color error containing %v", err, colorName)
 	}
 }
 
@@ -142,12 +130,8 @@ func TestAddPlayerDupeCorner(t *testing.T) {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	err := g.AddPlayer("bar", Yellow, Coord{10, 10})
-	if err == nil {
-		t.Fatalf("AddPlayer duplicate corner: got no error, want error")
-	}
-	if !strings.Contains(err.Error(), "Corner") {
-		t.Errorf("AddPlayer duplicate corner: got error %v, want duplicate corner error", err)
+	if err := g.AddPlayer("bar", Yellow, Coord{10, 10}); err == nil || !strings.Contains(err.Error(), "Corner") {
+		t.Errorf("AddPlayer() with duplicate corner: got %v, want duplicate corner error", err)
 	}
 }
 
@@ -191,10 +175,7 @@ func TestPlacePieceInvalidRotation(t *testing.T) {
 	g := newGameOrDie(t)
 	rots := []int{-10, -1, 4, 100}
 	for _, r := range rots {
-		err := g.PlacePiece(Coord{1, 1}, 1, r, false)
-		if err == nil {
-			t.Errorf("PlacePiece(rot:%v): got no error, want invalid rotation error", r)
-		} else if !strings.Contains(err.Error(), "rotation") {
+		if err := g.PlacePiece(Coord{1, 1}, 1, r, false); err == nil || !strings.Contains(err.Error(), "rotation") {
 			t.Errorf("PlacePiece(rot:%v): got %v, want invalid rotation error", r, err)
 		}
 	}
@@ -208,11 +189,8 @@ func TestPlacePieceAlreadyPlaced(t *testing.T) {
 		t.Fatalf("PlacePiece 1st time: got %v, want no error", err)
 	}
 
-	err := g.PlacePiece(Coord{2, 2}, p.id, 0, false)
-	if err == nil {
-		t.Fatal("PlacePiece() 2nd time: got no error, want piece already placed error")
-	} else if !strings.Contains(err.Error(), "already placed") {
-		t.Errorf("PlacePiece() 2nd time: got error %v, want piece already placed error", err)
+	if err := g.PlacePiece(Coord{2, 2}, p.id, 0, false); err == nil || !strings.Contains(err.Error(), "already placed") {
+		t.Errorf("PlacePiece() 2nd time: got %v, want piece already placed error", err)
 	}
 }
 
@@ -220,11 +198,8 @@ func TestPlacePieceOutOfTurn(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
 
 	p := g.players[1].pieces[0]
-	err := g.PlacePiece(Coord{0, 0}, p.id, 0, false)
-	if err == nil {
-		t.Fatal("PlacePiece(): got no error, want out of turn error")
-	} else if !strings.Contains(err.Error(), "turn") {
-		t.Errorf("PlacePiece(): got error %v, want out of turn error", err)
+	if err := g.PlacePiece(Coord{0, 0}, p.id, 0, false); err == nil || !strings.Contains(err.Error(), "turn") {
+		t.Errorf("PlacePiece(): got %v, want out of turn error", err)
 	}
 }
 
@@ -261,12 +236,8 @@ func TestPlacePieceValid(t *testing.T) {
 func TestCheckPiecePlacementNilPlayer(t *testing.T) {
 	g := newGameOrDie(t)
 	p := NewPiece(123, nil, []Coord{})
-	err := g.checkPiecePlacement(Coord{8, 9}, p)
-	if err == nil {
-		t.Fatalf("checkPiecePlacement(): got no error, want error")
-	}
-	if !strings.Contains(err.Error(), "no owning player") {
-		t.Errorf("checkPiecePlacement(): got error %v, want no owning player error", err)
+	if err := g.checkPiecePlacement(Coord{8, 9}, p); err == nil || !strings.Contains(err.Error(), "no owning player") {
+		t.Errorf("checkPiecePlacement(): got %v, want no owning player error", err)
 	}
 }
 
@@ -292,24 +263,16 @@ func TestCheckPiecePlacementWithValidTouchingCorner(t *testing.T) {
 
 func TestCheckPiecePlacementNoValidCorner(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
-	err := g.checkPiecePlacement(Coord{2, 2}, g.players[0].pieces[0])
-	if err == nil {
-		t.Fatalf("checkPiecePlacement(): got no error, want error")
-	}
-	if !strings.Contains(err.Error(), "no corner touching") {
-		t.Errorf("checkPiecePlacement(): got error %v, want no corner touching error", err)
+	if err := g.checkPiecePlacement(Coord{2, 2}, g.players[0].pieces[0]); err == nil || !strings.Contains(err.Error(), "no corner touching") {
+		t.Errorf("checkPiecePlacement(): got %v, want no corner touching error", err)
 	}
 }
 
 func TestCheckPiecePlacementOutOfBounds(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
 	p := g.players[0].pieces[0]
-	err := g.checkPiecePlacement(Coord{19, 19}, p)
-	if err == nil {
-		t.Fatalf("checkPiecePlacement(): got no error, want error")
-	}
-	if !strings.Contains(err.Error(), "out of bounds") {
-		t.Errorf("checkPiecePlacement(): got error %v, want out of bounds error", err)
+	if err := g.checkPiecePlacement(Coord{19, 19}, p); err == nil || !strings.Contains(err.Error(), "out of bounds") {
+		t.Errorf("checkPiecePlacement(): got %v, want out of bounds error", err)
 	}
 }
 
@@ -321,12 +284,8 @@ func TestCheckPiecePlacementOverlapExistingPiece(t *testing.T) {
 	}
 
 	p := g.players[1].pieces[1]
-	err := g.checkPiecePlacement(Coord{0, 1}, p)
-	if err == nil {
-		t.Fatalf("checkPiecePlacement(): got no error, want error")
-	}
-	if !strings.Contains(err.Error(), "occupied") {
-		t.Errorf("checkPiecePlacement(): got error %v, want occupied error", err)
+	if err := g.checkPiecePlacement(Coord{0, 1}, p); err == nil || !strings.Contains(err.Error(), "occupied") {
+		t.Errorf("checkPiecePlacement(): got %v, want occupied error", err)
 	}
 }
 
@@ -337,11 +296,7 @@ func TestCheckPiecePlacementTouchingSameColor(t *testing.T) {
 	}
 
 	p := g.players[0].pieces[1]
-	err := g.checkPiecePlacement(Coord{2, 1}, p)
-	if err == nil {
-		t.Fatalf("checkPiecePlacement(blue 2nd piece): got no error, want error")
-	}
-	if !strings.Contains(err.Error(), "another blue piece") {
+	if err := g.checkPiecePlacement(Coord{2, 1}, p); err == nil || !strings.Contains(err.Error(), "another blue piece") {
 		t.Errorf("checkPiecePlacement(blue 2nd piece): got error %v, want next to another blue piece error", err)
 	}
 }
@@ -358,10 +313,7 @@ func TestCheckPiecePlacementTouchingAnotherColor(t *testing.T) {
 
 func TestAdvanceTurnNoPlayers(t *testing.T) {
 	g := newGameOrDie(t)
-	err := g.AdvanceTurn()
-	if err == nil {
-		t.Errorf("AdvanceTurn() with no players: got no error, want error")
-	} else if !strings.Contains(err.Error(), "no players") {
+	if err := g.AdvanceTurn(); err == nil || !strings.Contains(err.Error(), "no players") {
 		t.Errorf("AdvanceTurn() with no players: got %v, want no players error", err)
 	}
 	if got := g.curPlayerIndex; got != 0 {
