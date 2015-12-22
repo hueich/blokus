@@ -58,7 +58,9 @@ func (g *Game) AddPlayer(name string, color int, corner Coord) error {
 	if ColorName(color) == "unknown" {
 		return fmt.Errorf("Unknown color value %v", color)
 	}
-	// TODO: Check valid corner
+	if err := g.checkPlayerCornerFormat(corner); err != nil {
+		return err
+	}
 	for _, p := range g.players {
 		if p.name == name {
 			return fmt.Errorf("Player %v already in the game", name)
@@ -82,6 +84,13 @@ func (g *Game) AddPlayer(name string, color int, corner Coord) error {
 		p.pieces = append(p.pieces, NewPiece(g.genPieceID(), p, b))
 	}
 	g.players = append(g.players, p)
+	return nil
+}
+
+func (g *Game) checkPlayerCornerFormat(c Coord) error {
+	if (c.X != -1 && c.X != len(g.board.grid)) || (c.Y != -1 && c.Y != len(g.board.grid[0])) {
+		return fmt.Errorf("Player corner coordinate is not valid: [%v]", c)
+	}
 	return nil
 }
 

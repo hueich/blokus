@@ -88,7 +88,7 @@ func TestAddPlayer(t *testing.T) {
 
 func TestAddPlayerInvalidColor(t *testing.T) {
 	g := newGameOrDie(t)
-	err := g.AddPlayer("foo", 999, Coord{1, 1})
+	err := g.AddPlayer("foo", 999, Coord{10, 10})
 	if err == nil {
 		t.Fatalf("AddPlayer() with invalid color: got no error, want error")
 	}
@@ -97,10 +97,17 @@ func TestAddPlayerInvalidColor(t *testing.T) {
 	}
 }
 
+func TestAddPlayerInvalidCorner(t *testing.T) {
+	g := newGameOrDie(t)
+	if err := g.AddPlayer("foo", Blue, Coord{9, 9}); err == nil || !strings.Contains(err.Error(), "corner") {
+		t.Errorf("AddPlayer() with invalid corner: got %v, want invalid corner error", err)
+	}
+}
+
 func TestAddPlayerDupeName(t *testing.T) {
 	g := newGameOrDie(t)
 	name := "foo"
-	if err := g.AddPlayer(name, Blue, Coord{1, 1}); err != nil {
+	if err := g.AddPlayer(name, Blue, Coord{10, 10}); err != nil {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
@@ -116,7 +123,7 @@ func TestAddPlayerDupeName(t *testing.T) {
 func TestAddPlayerDupeColor(t *testing.T) {
 	g := newGameOrDie(t)
 	color := Blue
-	if err := g.AddPlayer("foo", color, Coord{1, 1}); err != nil {
+	if err := g.AddPlayer("foo", color, Coord{10, 10}); err != nil {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
@@ -131,11 +138,11 @@ func TestAddPlayerDupeColor(t *testing.T) {
 
 func TestAddPlayerDupeCorner(t *testing.T) {
 	g := newGameOrDie(t)
-	if err := g.AddPlayer("foo", Blue, Coord{1, 1}); err != nil {
+	if err := g.AddPlayer("foo", Blue, Coord{10, 10}); err != nil {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	err := g.AddPlayer("bar", Yellow, Coord{1, 1})
+	err := g.AddPlayer("bar", Yellow, Coord{10, 10})
 	if err == nil {
 		t.Fatalf("AddPlayer duplicate corner: got no error, want error")
 	}
@@ -365,7 +372,7 @@ func TestAdvanceTurnNoPlayers(t *testing.T) {
 func TestAdvanceTurn(t *testing.T) {
 	g := newGameOrDie(t)
 	g.AddPlayer("foo", Red, Coord{-1, -1})
-	g.AddPlayer("bar", Blue, Coord{-1, 1})
+	g.AddPlayer("bar", Blue, Coord{-1, 10})
 
 	if got, want := g.players[g.curPlayerIndex].name, "foo"; got != want {
 		t.Fatalf("Before AdvanceTurn(): got player %v, want player %v", got, want)
