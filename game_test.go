@@ -277,6 +277,20 @@ func TestCheckPiecePlacementNilPlayer(t *testing.T) {
 	}
 }
 
+func TestCheckPiecePlacementBlockIndexBoundsCheck(t *testing.T) {
+	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
+	p := g.players[0].pieces[0]
+	if err := g.checkPiecePlacementAt(Coord{0,0}, p, -1); err == nil || !strings.Contains(err.Error(), "out of bounds") {
+		t.Errorf("checkPiecePlacementAt() with block index -1: got %v, want block index out of bounds error", err)
+	}
+	if err := g.checkPiecePlacementAt(Coord{0,0}, p, 3); err == nil || !strings.Contains(err.Error(), "out of bounds") {
+		t.Errorf("checkPiecePlacementAt() with block index 3: got %v, want block index out of bounds error", err)
+	}
+	if err := g.checkPiecePlacementAt(Coord{0,0}, p, 1); err != nil {
+		t.Errorf("checkPiecePlacementAt() with block index 1: got %v, want no error", err)
+	}
+}
+
 func TestCheckPiecePlacementAtStartingCorner(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
 	p := g.players[0].pieces[1]

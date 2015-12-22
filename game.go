@@ -150,8 +150,18 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 
 // Checks whether piece placement is valid. Returns error if invalid.
 func (g *Game) checkPiecePlacement(loc Coord, p *Piece) error {
+	return g.checkPiecePlacementAt(loc, p, 0)
+}
+
+func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
+	if p == nil {
+		return fmt.Errorf("Piece cannot be nil")
+	}
 	if p.player == nil {
-		return fmt.Errorf("Piece has no owning player (this shouldn't happen)")
+		return fmt.Errorf("Piece has no owning player")
+	}
+	if block < 0 || block >= len(p.blocks) {
+		return fmt.Errorf("Specified block index %v for piece of %v blocks is out of bounds", block, len(p.blocks))
 	}
 
 	for _, b := range p.blocks {
