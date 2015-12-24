@@ -164,6 +164,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 		return fmt.Errorf("Specified block index %v for piece of %v blocks is out of bounds", block, len(p.blocks))
 	}
 
+	loc = Coord{loc.X - p.blocks[block].X, loc.Y - p.blocks[block].Y}
 	for _, b := range p.blocks {
 		// Change from relative to absolute coordinate.
 		b = Coord{b.X + loc.X, b.Y + loc.Y}
