@@ -51,7 +51,7 @@ func (g *Game) genPieceID() int {
 }
 
 func (g *Game) isOutOfBound(c Coord) bool {
-	return c.X < 0 || c.Y < 0 || c.X >= len(g.board.grid) || c.Y >= len(g.board.grid[0])
+	return c.X < 0 || c.Y < 0 || c.X >= g.board.size || c.Y >= g.board.size
 }
 
 func (g *Game) AddPlayer(name string, color int, corner Coord) error {
@@ -88,7 +88,7 @@ func (g *Game) AddPlayer(name string, color int, corner Coord) error {
 }
 
 func (g *Game) checkPlayerCornerFormat(c Coord) error {
-	if (c.X != -1 && c.X != len(g.board.grid)) || (c.Y != -1 && c.Y != len(g.board.grid[0])) {
+	if (c.X != -1 && c.X != g.board.size) || (c.Y != -1 && c.Y != g.board.size) {
 		return fmt.Errorf("Player corner coordinate is not valid: [%v]", c)
 	}
 	return nil
@@ -142,7 +142,7 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	// Actually place the piece.
 	p.location = &Coord{loc.X, loc.Y}
 	for _, b := range p.blocks {
-		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p
+		g.board.SetCoord(loc.X+b.X, loc.Y+b.Y, p)
 	}
 
 	return nil
@@ -175,7 +175,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 			return fmt.Errorf("Piece placement out of bounds")
 		}
 		// Check that every block is on an empty space
-		if g.board.grid[b.X][b.Y] != nil {
+		if g.board.GetCoord(b.X, b.Y) != nil {
 			return fmt.Errorf("Cell %v,%v is occupied", b.X, b.Y)
 		}
 		// Check that every block is not next to a piece of same color
@@ -184,7 +184,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 			if g.isOutOfBound(n) {
 				continue
 			}
-			if s := g.board.grid[n.X][n.Y]; s != nil && s.player == p.player {
+			if s := g.board.GetCoord(n.X, n.Y); s != nil && s.player == p.player {
 				return fmt.Errorf("Piece is next to another %v piece", ColorName(p.player.color))
 			}
 		}
@@ -204,7 +204,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 			continue
 		}
 		// Check that at least one corner is touching a block of same color.
-		if s := g.board.grid[c.X][c.Y]; s != nil && s.player == p.player {
+		if s := g.board.GetCoord(c.X, c.Y); s != nil && s.player == p.player {
 			validCorner = true
 			break
 		}

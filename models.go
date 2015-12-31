@@ -43,17 +43,24 @@ type Coord struct {
 
 // Board represents the game board.
 type Board struct {
-	grid [][]*Piece
+	size int
+	grid []*Piece
 }
 
 func NewBoard(size int) *Board {
 	b := Board{
-		grid: make([][]*Piece, size),
-	}
-	for i := range b.grid {
-		b.grid[i] = make([]*Piece, size)
+		size: size,
+		grid: make([]*Piece, size*size),
 	}
 	return &b
+}
+
+func (b *Board) GetCoord(x, y int) *Piece {
+	return b.grid[x*b.size+y]
+}
+
+func (b *Board) SetCoord(x, y int, p *Piece) {
+	b.grid[x*b.size+y] = p
 }
 
 // Piece represents a puzzle piece, made up of one or more square blocks.

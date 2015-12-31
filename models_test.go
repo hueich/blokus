@@ -32,6 +32,31 @@ func coordSliceToMap(s []Coord) map[Coord]bool {
 	return m
 }
 
+func testBoardCoordTranslation(t *testing.T, b *Board, c Coord, p *Piece) {
+	b.SetCoord(c.X, c.Y, p)
+	if s := b.GetCoord(c.X, c.Y); s != p {
+		t.Errorf("GetCoord(%v): got %v, want %v", c, s, p)
+	}
+	b.SetCoord(c.X, c.Y, nil)
+	if s := b.GetCoord(c.X, c.Y); s != nil {
+		t.Fatalf("GetCoord(%v): got %v, want nil", c, s)
+	}
+}
+
+func TestBoardCoordTranslation(t *testing.T) {
+	b := NewBoard(3)
+	if got, want := len(b.grid), 3*3; got != want {
+		t.Fatalf("NewBoard grid slice length: got %v, want %v", got, want)
+	}
+	p := NewPiece(123, nil, nil)
+
+	testBoardCoordTranslation(t, b, Coord{0, 0}, p)
+	testBoardCoordTranslation(t, b, Coord{0, 1}, p)
+	testBoardCoordTranslation(t, b, Coord{1, 0}, p)
+	testBoardCoordTranslation(t, b, Coord{1, 2}, p)
+	testBoardCoordTranslation(t, b, Coord{2, 2}, p)
+}
+
 func TestGetCorners_OneBlock(t *testing.T) {
 	blocks := []Coord{
 		{0, 0},
