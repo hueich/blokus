@@ -24,14 +24,15 @@ type Game struct {
 	players []*Player
 	board   *Board
 	// Set of pieces every player starts with.
-	pieceSet []*Piece
+	// TODO: Switch to load piece templates from database
+	pieceSet []*PieceTemplate
 	// ID to use when generating the next new piece.
 	nextPieceID int
 	// Index of the player whose turn it is.
 	curPlayerIndex int
 }
 
-func NewGame(id int, size int, pieces []*Piece) (*Game, error) {
+func NewGame(id int, size int, pieces []*PieceTemplate) (*Game, error) {
 	if size <= 0 || size > maxBoardSize {
 		return nil, fmt.Errorf("Board size must be between 1 and %v. Provided: %v", maxBoardSize, size)
 	}
@@ -78,10 +79,8 @@ func (g *Game) AddPlayer(name string, color int, corner Coord) error {
 		corner: corner,
 	}
 	// Make a copy of the set of starting pieces of the game.
-	for _, ps := range g.pieceSet {
-		b := make([]Coord, len(ps.blocks))
-		copy(b, ps.blocks)
-		p.pieces = append(p.pieces, NewPiece(g.genPieceID(), p, b))
+	for _, pt := range g.pieceSet {
+		p.pieces = append(p.pieces, NewPiece(g.genPieceID(), p, pt))
 	}
 	g.players = append(g.players, p)
 	return nil

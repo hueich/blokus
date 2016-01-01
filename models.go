@@ -63,6 +63,10 @@ func (b *Board) SetCoord(x, y int, p *Piece) {
 	b.grid[x*b.size+y] = p
 }
 
+type PieceTemplate struct {
+	blocks []Coord
+}
+
 // Piece represents a puzzle piece, made up of one or more square blocks.
 type Piece struct {
 	id int
@@ -81,17 +85,15 @@ type Piece struct {
 	flip bool
 }
 
-func NewPiece(id int, player *Player, blocks []Coord) *Piece {
-	return &Piece{
+func NewPiece(id int, player *Player, t *PieceTemplate) *Piece {
+	p := &Piece{
 		id:      id,
 		player:  player,
-		blocks:  blocks,
-		corners: getCorners(blocks),
+		blocks:  make([]Coord, len(t.blocks)),
+		corners: getCorners(t.blocks),
 	}
-}
-
-func NewTemplatePiece(blocks []Coord) *Piece {
-	return NewPiece(0, nil, blocks)
+	copy(p.blocks, t.blocks)
+	return p
 }
 
 func getCorners(blocks []Coord) []Coord {

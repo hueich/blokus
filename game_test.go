@@ -6,7 +6,7 @@ import (
 )
 
 func newGameOrDie(t *testing.T) *Game {
-	g, err := NewGame(123, 10, []*Piece{})
+	g, err := NewGame(123, 10, []*PieceTemplate{})
 	if err != nil {
 		t.Fatalf("NewGame(): got %v, want no error", err)
 	}
@@ -14,8 +14,7 @@ func newGameOrDie(t *testing.T) *Game {
 }
 
 func TestNewGame(t *testing.T) {
-	p := &Piece{blocks: []Coord{Coord{3, 4}}}
-	g, err := NewGame(123, 22, []*Piece{p})
+	g, err := NewGame(123, 22, []*PieceTemplate{{[]Coord{{3, 4}}}})
 	if err != nil {
 		t.Fatalf("NewGame(): got %v, want no error", err)
 	}
@@ -41,11 +40,11 @@ func TestNewGame(t *testing.T) {
 }
 
 func TestAddPlayer(t *testing.T) {
-	ps := []*Piece{
+	pts := []*PieceTemplate{
 		{blocks: []Coord{Coord{3, 4}}},
 		{blocks: []Coord{Coord{5, 6}}},
 	}
-	g, err := NewGame(123, 22, ps)
+	g, err := NewGame(123, 22, pts)
 	if err != nil {
 		t.Fatalf("NewGame(): got %v, want no error", err)
 	}
@@ -172,11 +171,11 @@ func TestCheckPlayerCornerFormatWithInvalidValues(t *testing.T) {
 }
 
 func newGameWithTwoPlayersAndTwoPieces(t *testing.T, size int) *Game {
-	tps := []*Piece{
-		NewTemplatePiece([]Coord{{0, 0}, {1, 0}, {2, 0}}),
-		NewTemplatePiece([]Coord{{0, 0}, {1, 0}, {1, 1}, {2, 1}}),
+	pts := []*PieceTemplate{
+		{[]Coord{{0, 0}, {1, 0}, {2, 0}}},
+		{[]Coord{{0, 0}, {1, 0}, {1, 1}, {2, 1}}},
 	}
-	g, err := NewGame(123, size, tps)
+	g, err := NewGame(123, size, pts)
 	if err != nil {
 		t.Fatalf("NewGame(): got %v, want no error", err)
 	}
@@ -271,7 +270,7 @@ func TestPlacePieceValid(t *testing.T) {
 
 func TestCheckPiecePlacementNilPlayer(t *testing.T) {
 	g := newGameOrDie(t)
-	p := NewPiece(123, nil, []Coord{})
+	p := NewPiece(123, nil, &PieceTemplate{})
 	if err := g.checkPiecePlacement(Coord{8, 9}, p); err == nil || !strings.Contains(err.Error(), "no owning player") {
 		t.Errorf("checkPiecePlacement(): got %v, want no owning player error", err)
 	}

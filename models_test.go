@@ -48,7 +48,7 @@ func TestBoardCoordTranslation(t *testing.T) {
 	if got, want := len(b.grid), 3*3; got != want {
 		t.Fatalf("NewBoard grid slice length: got %v, want %v", got, want)
 	}
-	p := NewPiece(123, nil, nil)
+	p := NewPiece(123, nil, &PieceTemplate{})
 
 	testBoardCoordTranslation(t, b, Coord{0, 0}, p)
 	testBoardCoordTranslation(t, b, Coord{0, 1}, p)
@@ -136,12 +136,12 @@ func TestRotateCoord(t *testing.T) {
 }
 
 func TestRotatePiece(t *testing.T) {
-	p := NewPiece(123, nil, []Coord{
+	p := NewPiece(123, nil, &PieceTemplate{[]Coord{
 		{0, 0},
 		{1, 0},
 		{1, 1},
 		{2, 1},
-	})
+	}})
 	bOrig := p.blocks
 	bWant := p.blocks
 	for i, b := range bWant {
@@ -215,12 +215,12 @@ func TestFlipCoord(t *testing.T) {
 }
 
 func TestFlipPiece(t *testing.T) {
-	p := NewPiece(123, nil, []Coord{
+	p := NewPiece(123, nil, &PieceTemplate{[]Coord{
 		{0, 0},
 		{1, 0},
 		{1, 1},
 		{2, 1},
-	})
+	}})
 	bWant := p.blocks
 	for i, b := range bWant {
 		bWant[i] = flipCoord(b)
