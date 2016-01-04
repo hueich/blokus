@@ -2,11 +2,11 @@ package blokus
 
 // Colors
 const (
-	UnknownColor = iota
-	Blue         = iota
-	Yellow       = iota
-	Red          = iota
-	Green        = iota
+	_ = iota
+	Blue
+	Yellow
+	Red
+	Green
 )
 
 func ColorName(c int) string {
