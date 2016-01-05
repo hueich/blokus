@@ -2,6 +2,8 @@ package blokus
 
 import (
 	"fmt"
+
+	"google.golang.org/cloud/datastore"
 )
 
 const (
@@ -21,11 +23,11 @@ var (
 
 type Game struct {
 	id      int
-	players []*Player
+	players []*datastore.Key  // []*Player
 	board   *Board
 	// Set of pieces every player starts with.
 	// TODO: Switch to load piece templates from database
-	pieceSet []*PieceTemplate
+	pieceSet []*datastore.Key  // []*PieceTemplate
 	// ID to use when generating the next new piece.
 	nextPieceID int
 	// Index of the player whose turn it is.

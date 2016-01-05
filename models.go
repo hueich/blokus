@@ -1,5 +1,9 @@
 package blokus
 
+import (
+	"google.golang.org/cloud/datastore"
+)
+
 // Colors
 const (
 	_ = iota
@@ -27,7 +31,7 @@ type Player struct {
 	// Unique name of the player.
 	name   string
 	color  int
-	pieces []*Piece
+	pieces []*datastore.Key  // []*Piece
 	// The corner the player starts from, e.g. [-1,-1], or [-1,20] for a size 20 board.
 	corner Coord
 }
@@ -44,7 +48,7 @@ type Coord struct {
 // Board represents the game board.
 type Board struct {
 	size int
-	grid []*Piece
+	grid []*datastore.Key  // []*Piece
 }
 
 func NewBoard(size int) *Board {
@@ -71,7 +75,7 @@ type PieceTemplate struct {
 type Piece struct {
 	id int
 	// The player who owns this piece
-	player *Player
+	player *datastore.Key  // *Player
 	// The coordinate this piece was placed in, or nil if it's not placed yet.
 	// This is the coordinate where the (0,0) block is located.
 	location *Coord
