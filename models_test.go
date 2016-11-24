@@ -54,8 +54,8 @@ func TestPieceInheritsPlayerColor(t *testing.T) {
 	piece := Piece{
 		player: &player,
 	}
-	if want, got := Yellow, piece.GetColor(); want != got {
-		t.Errorf("Piece.GetColor(): want %v, got %v", want, got)
+	if want, got := Yellow, piece.Color(); want != got {
+		t.Errorf("Piece.Color(): want %v, got %v", want, got)
 	}
 }
 

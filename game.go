@@ -142,7 +142,7 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	// Actually place the piece.
 	p.location = &Coord{loc.X, loc.Y}
 	for _, b := range p.blocks {
-		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p.GetColor()
+		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p.Color()
 	}
 
 	return nil

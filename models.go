@@ -47,7 +47,7 @@ type Player struct {
 	corner Coord
 }
 
-func (p *Player) GetColor() Color {
+func (p *Player) Color() Color {
 	return p.color
 }
 
@@ -126,8 +126,8 @@ func getCorners(blocks []Coord) []Coord {
 	return c
 }
 
-func (p *Piece) GetColor() Color {
-	return p.player.GetColor()
+func (p *Piece) Color() Color {
+	return p.player.color
 }
 
 // Rotate piece clockwise 90 degrees.
