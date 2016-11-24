@@ -27,8 +27,8 @@ func StartGame(ctx context.Context, gameID int64, username string) error {
 }
 
 // PlacePiece places a piece on the board, given the position and orientation.
-// Coordinate [0,0] is the bottom left corner of the board. X increases rightward and Y increases upward.
-// Rotation starts from 0 and increases clockwise in 90-degree increments. Flip, if true, flips the piece horizontally, i.e. around the Y axis.
+// Coordinate [0,0] is the top left corner of the board. X increases downward and Y increases rightward.
+// Rotation starts from 0 and increases clockwise in 90-degree increments. Flip, if true, flips the piece horizontally, i.e. around the X-axis.
 func PlacePiece(ctx context.Context, gameID, pieceID int64, x, y, rot int, flip bool) error {
 	return nil
 }

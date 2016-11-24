@@ -2,11 +2,11 @@ package blokus
 
 // Colors
 const (
-	UnknownColor = iota
-	Blue         = iota
-	Yellow       = iota
-	Red          = iota
-	Green        = iota
+	_      = iota
+	Blue   = iota
+	Yellow = iota
+	Red    = iota
+	Green  = iota
 )
 
 func ColorName(c int) string {
@@ -36,7 +36,7 @@ func (p *Player) GetColor() int {
 	return p.color
 }
 
-// Coord represents a 2D coordinate.
+// Coord represents a 2D coordinate, where X increases downward and Y increases rightward.
 type Coord struct {
 	X, Y int
 }
@@ -70,7 +70,7 @@ type Piece struct {
 	corners []Coord
 	// Number of 90 degree clockwise rotations, between 0-3, where 0 is no rotation, i.e. original orientation.
 	rot int
-	// True if the piece is flipped.
+	// True if the piece is flipped horizontally, i.e. around the X-axis.
 	flip bool
 }
 
@@ -115,7 +115,7 @@ func (p *Piece) GetColor() int {
 	return p.player.GetColor()
 }
 
-// Rotate piece clockwise 90 degrees
+// Rotate piece clockwise 90 degrees.
 func (p *Piece) Rotate() {
 	for i, c := range p.blocks {
 		p.blocks[i] = rotateCoord(c)
@@ -130,7 +130,7 @@ func rotateCoord(c Coord) Coord {
 	return Coord{c.Y, -c.X}
 }
 
-// Flip piece along X axis
+// Flip piece horizontally, around the X-axis.
 func (p *Piece) Flip() {
 	for i, c := range p.blocks {
 		p.blocks[i] = flipCoord(c)
