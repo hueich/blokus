@@ -22,7 +22,7 @@ var (
 )
 
 type Game struct {
-	id      int
+	id      int64
 	players []*datastore.Key  // []*Player
 	board   *Board
 	// Set of pieces every player starts with.
@@ -34,7 +34,7 @@ type Game struct {
 	curPlayerIndex int
 }
 
-func NewGame(id int, size int, pieces []*PieceTemplate) (*Game, error) {
+func NewGame(id int64, size int, pieces []*PieceTemplate) (*Game, error) {
 	if size <= 0 || size > maxBoardSize {
 		return nil, fmt.Errorf("Board size must be between 1 and %v. Provided: %v", maxBoardSize, size)
 	}
@@ -97,7 +97,7 @@ func (g *Game) checkPlayerCornerFormat(c Coord) error {
 
 // Place the piece, unless there's an error.
 // This does not check for winner nor advance player turn.
-func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
+func (g *Game) PlacePiece(loc Coord, pieceID int64, rot int, flip bool) error {
 	// Preliminary input validation.
 	if g.isOutOfBound(loc) {
 		return fmt.Errorf("Piece placement out of bounds: %v,%v", loc.X, loc.Y)

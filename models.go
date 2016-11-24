@@ -31,7 +31,7 @@ type Player struct {
 	// Unique name of the player.
 	name   string
 	color  int
-	pieces []*datastore.Key  // []*Piece
+	// pieces []*datastore.Key  // []*Piece
 	// The corner the player starts from, e.g. [-1,-1], or [-1,20] for a size 20 board.
 	corner Coord
 }
