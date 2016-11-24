@@ -55,8 +55,8 @@ func (g *Game) isOutOfBound(c Coord) bool {
 }
 
 func (g *Game) AddPlayer(name string, color Color, corner Coord) error {
-	if ColorName(color) == "unknown" {
-		return fmt.Errorf("Unknown color value %v", color)
+	if color.String() == "" {
+		return fmt.Errorf("Unknown color value: %v", color)
 	}
 	if err := g.checkPlayerCornerFormat(corner); err != nil {
 		return err
@@ -66,7 +66,7 @@ func (g *Game) AddPlayer(name string, color Color, corner Coord) error {
 			return fmt.Errorf("Player %v already in the game", name)
 		}
 		if p.color == color {
-			return fmt.Errorf("Color %v already taken by player %v", ColorName(color), p.name)
+			return fmt.Errorf("Color %v already taken by player %v", color, p.name)
 		}
 		if p.corner == corner {
 			return fmt.Errorf("Corner aleady occupied by player %v", p.name)
@@ -185,7 +185,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 				continue
 			}
 			if s := g.board.grid[n.X][n.Y]; s != nil && s.player == p.player {
-				return fmt.Errorf("Piece is next to another %v piece", ColorName(p.player.color))
+				return fmt.Errorf("Piece is next to another %v piece", p.player.color)
 			}
 		}
 	}
@@ -210,7 +210,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 		}
 	}
 	if !validCorner {
-		return fmt.Errorf("Piece has no corner touching another %v piece or the player's starting corner", ColorName(p.player.color))
+		return fmt.Errorf("Piece has no corner touching another %v piece or the player's starting corner", p.player.color)
 	}
 	return nil
 }

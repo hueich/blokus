@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-func TestColorName(t *testing.T) {
-	if want, got := "red", ColorName(Red); want != got {
-		t.Errorf("ColorName(Red): want %v, got %v", want, got)
+func TestColorString(t *testing.T) {
+	if want, got := "red", Red.String(); want != got {
+		t.Errorf("Red.String(): want %v, got %v", want, got)
 	}
 }
 

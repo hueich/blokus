@@ -62,7 +62,7 @@ func TestAddPlayer(t *testing.T) {
 		t.Errorf("Player name: got %v, want %v", got, want)
 	}
 	if got, want := p.color, Red; got != want {
-		t.Errorf("Player color: got %v, want %v", ColorName(got), ColorName(want))
+		t.Errorf("Player color: got %v, want %v", got, want)
 	}
 	if got, want := p.corner, (Coord{-1, -1}); got != want {
 		t.Errorf("Player corner: got %v, want %v", got, want)
@@ -88,7 +88,7 @@ func TestAddPlayer(t *testing.T) {
 
 func TestAddPlayerInvalidColor(t *testing.T) {
 	g := newGameOrDie(t)
-	if err, colorValue := g.AddPlayer("foo", 99, Coord{10, 10}), "99"; err == nil || !strings.Contains(err.Error(), colorValue) {
+	if err, colorValue := g.AddPlayer("foo", 99, Coord{10, 10}), "unknown"; err == nil || !strings.Contains(strings.ToLower(err.Error()), colorValue) {
 		t.Errorf("AddPlayer() with invalid color: got %v, want error to contain %v", err, colorValue)
 	}
 }
@@ -119,8 +119,8 @@ func TestAddPlayerDupeColor(t *testing.T) {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	if err, colorName := g.AddPlayer("bar", color, Coord{-1, -1}), ColorName(color); err == nil || !strings.Contains(err.Error(), colorName) {
-		t.Errorf("AddPlayer() with duplicate color: got %v, want duplicate color error containing %v", err, colorName)
+	if err := g.AddPlayer("bar", color, Coord{-1, -1}); err == nil || !strings.Contains(err.Error(), color.String()) {
+		t.Errorf("AddPlayer() with duplicate color: got %v, want duplicate color error containing %v", err, color)
 	}
 }
 

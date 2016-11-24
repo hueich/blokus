@@ -9,7 +9,7 @@ const (
 	Green
 )
 
-func ColorName(c Color) string {
+func (c Color) String() string {
 	switch c {
 	case Blue:
 		return "blue"
@@ -20,7 +20,7 @@ func ColorName(c Color) string {
 	case Green:
 		return "green"
 	}
-	return "unknown"
+	return ""
 }
 
 type Corner uint8
