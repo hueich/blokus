@@ -20,7 +20,7 @@ func TestNewGame(t *testing.T) {
 		t.Fatalf("NewGame(): got %v, want no error", err)
 	}
 
-	if got, want := g.id, 123; got != want {
+	if got, want := g.id, GameID(123); got != want {
 		t.Errorf("Game id: got %v, want %v", got, want)
 	}
 	if g.board == nil {
@@ -253,7 +253,7 @@ func TestPlacePieceValid(t *testing.T) {
 		{0, 2},
 	}
 	for _, s := range spaces {
-		if got := g.board.grid[s.X][s.Y]; got != p {
+		if got := g.board.grid[s.X][s.Y]; got != p.GetColor() {
 			t.Errorf("Board space [%v]: got %v, want occupied by piece %v", s, got, p.id)
 		}
 	}

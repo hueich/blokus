@@ -5,9 +5,44 @@ import (
 	"testing"
 )
 
+func TestColorIsValid(t *testing.T) {
+	if want, got := true, Blue.IsValid(); want != got {
+		t.Errorf("Blue.IsValid(): got %v, want %v", got, want)
+	}
+	if want, got := true, Yellow.IsValid(); want != got {
+		t.Errorf("Yellow.IsValid(): got %v, want %v", got, want)
+	}
+	if want, got := true, Red.IsValid(); want != got {
+		t.Errorf("Red.IsValid(): got %v, want %v", got, want)
+	}
+	if want, got := true, Green.IsValid(); want != got {
+		t.Errorf("Green.IsValid(): got %v, want %v", got, want)
+	}
+}
+
+func TestColorIsNotValid(t *testing.T) {
+	var c Color
+	c = 0
+	if want, got := false, c.IsValid(); want != got {
+		t.Errorf("Color(0).IsValid(): got %v, want %v", got, want)
+	}
+	c = 100
+	if want, got := false, c.IsValid(); want != got {
+		t.Errorf("Color(100).IsValid(): got %v, want %v", got, want)
+	}
+}
+
 func TestColorString(t *testing.T) {
 	if want, got := "red", Red.String(); want != got {
 		t.Errorf("Red.String(): want %v, got %v", want, got)
+	}
+}
+
+func TestInvalidColorString(t *testing.T) {
+	var c Color
+	c = 0
+	if want, got := "", c.String(); want != got {
+		t.Errorf("Color(0).String(): want %q, got %q", want, got)
 	}
 }
 

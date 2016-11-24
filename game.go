@@ -20,7 +20,7 @@ var (
 )
 
 type Game struct {
-	id      int
+	id      GameID
 	players []*Player
 	board   *Board
 	// Set of pieces every player starts with.
@@ -31,7 +31,7 @@ type Game struct {
 	curPlayerIndex int
 }
 
-func NewGame(id int, size int, pieces []*Piece) (*Game, error) {
+func NewGame(id GameID, size int, pieces []*Piece) (*Game, error) {
 	if size <= 0 || size > maxBoardSize {
 		return nil, fmt.Errorf("Board size must be between 1 and %v. Provided: %v", maxBoardSize, size)
 	}
@@ -55,7 +55,7 @@ func (g *Game) isOutOfBound(c Coord) bool {
 }
 
 func (g *Game) AddPlayer(name string, color Color, corner Coord) error {
-	if color.String() == "" {
+	if !color.IsValid() {
 		return fmt.Errorf("Unknown color value: %v", color)
 	}
 	if err := g.checkPlayerCornerFormat(corner); err != nil {
@@ -142,7 +142,7 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	// Actually place the piece.
 	p.location = &Coord{loc.X, loc.Y}
 	for _, b := range p.blocks {
-		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p
+		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p.GetColor()
 	}
 
 	return nil
@@ -175,7 +175,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 			return fmt.Errorf("Piece placement out of bounds")
 		}
 		// Check that every block is on an empty space
-		if g.board.grid[b.X][b.Y] != nil {
+		if g.board.grid[b.X][b.Y].IsValid() {
 			return fmt.Errorf("Cell %v,%v is occupied", b.X, b.Y)
 		}
 		// Check that every block is not next to a piece of same color
@@ -184,7 +184,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 			if g.isOutOfBound(n) {
 				continue
 			}
-			if s := g.board.grid[n.X][n.Y]; s != nil && s.player == p.player {
+			if s := g.board.grid[n.X][n.Y]; s.IsValid() && s == p.player.color {
 				return fmt.Errorf("Piece is next to another %v piece", p.player.color)
 			}
 		}
@@ -204,7 +204,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 			continue
 		}
 		// Check that at least one corner is touching a block of same color.
-		if s := g.board.grid[c.X][c.Y]; s != nil && s.player == p.player {
+		if s := g.board.grid[c.X][c.Y]; s.IsValid() && s == p.player.color {
 			validCorner = true
 			break
 		}

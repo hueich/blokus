@@ -7,7 +7,13 @@ const (
 	Yellow
 	Red
 	Green
+
+	colorEnd
 )
+
+func (c Color) IsValid() bool {
+	return c > 0 && c < colorEnd
+}
 
 func (c Color) String() string {
 	switch c {
@@ -52,15 +58,15 @@ type Coord struct {
 
 // Board represents the game board.
 type Board struct {
-	grid [][]*Piece
+	grid [][]Color
 }
 
 func NewBoard(size int) *Board {
 	b := Board{
-		grid: make([][]*Piece, size),
+		grid: make([][]Color, size),
 	}
 	for i := range b.grid {
-		b.grid[i] = make([]*Piece, size)
+		b.grid[i] = make([]Color, size)
 	}
 	return &b
 }
