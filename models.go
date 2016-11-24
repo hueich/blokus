@@ -1,5 +1,7 @@
 package blokus
 
+type GameID int64
+
 type Color uint8
 
 const (

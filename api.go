@@ -4,14 +4,15 @@ import (
 	"context"
 )
 
-type GameID int64
-
 type GameOptions struct {
-	// Name of the set of starting pieces to use for the game. Leave empty for default set.
-	PieceSetName string
+	// Description is an optional description of the game.
+	Description string
 }
 
 type PlayerOptions struct {
+	// Color is the desired color of the player.
+	// If left with zero value, the game will automatically choose the next free color.
+	// It's an error if the specified color is already taken.
 	Color  Color
 	Corner Corner
 }
@@ -23,7 +24,7 @@ type Service interface {
 	// BoardSize is the length of one edge of the board for a square board.
 	CreateGame(ctx context.Context, username, gamename string, boardSize int, opts *GameOptions) (GameID, error)
 
-	// AddPlayer adds a new player to the game. It's an error to add an existing player or if the color or corner is taken.
+	// AddPlayer adds a new player to the game.
 	AddPlayer(ctx context.Context, id GameID, username string, opts *PlayerOptions) error
 
 	// StartGame starts the game with the specified player. It's an error to call this if the game already started.
