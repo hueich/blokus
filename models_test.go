@@ -33,16 +33,16 @@ func TestColorIsNotValid(t *testing.T) {
 }
 
 func TestColorString(t *testing.T) {
-	if want, got := "red", Red.String(); want != got {
-		t.Errorf("Red.String(): want %v, got %v", want, got)
+	if got, want := Red.String(), "red"; got != want {
+		t.Errorf("Red.String(): got %v, want %v", got, want)
 	}
 }
 
 func TestInvalidColorString(t *testing.T) {
 	var c Color
 	c = 0
-	if want, got := "", c.String(); want != got {
-		t.Errorf("Color(0).String(): want %q, got %q", want, got)
+	if got, want := c.String(), ""; got != want {
+		t.Errorf("Color(0).String(): got %q, want %q", got, want)
 	}
 }
 
@@ -54,8 +54,8 @@ func TestPieceInheritsPlayerColor(t *testing.T) {
 	piece := Piece{
 		player: &player,
 	}
-	if want, got := Yellow, piece.Color(); want != got {
-		t.Errorf("Piece.Color(): want %v, got %v", want, got)
+	if got, want := piece.Color(), Yellow; got != want {
+		t.Errorf("Piece.Color(): got %v, want %v", got, want)
 	}
 }
 
