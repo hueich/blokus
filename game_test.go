@@ -88,7 +88,7 @@ func TestAddPlayer(t *testing.T) {
 
 func TestAddPlayerInvalidColor(t *testing.T) {
 	g := newGameOrDie(t)
-	if err, colorValue := g.AddPlayer("foo", 999, Coord{10, 10}), "999"; err == nil || !strings.Contains(err.Error(), colorValue) {
+	if err, colorValue := g.AddPlayer("foo", 99, Coord{10, 10}), "99"; err == nil || !strings.Contains(err.Error(), colorValue) {
 		t.Errorf("AddPlayer() with invalid color: got %v, want error to contain %v", err, colorValue)
 	}
 }

@@ -6,7 +6,12 @@ import (
 
 type GameOptions struct {
 	// Name of the set of starting pieces to use for the game. Leave empty for default set.
-	PieceSet string
+	PieceSetName string
+}
+
+type PlayerOptions struct {
+	Color  Color
+	Corner Corner
 }
 
 // CreateGame returns the ID of the created game.
@@ -17,7 +22,7 @@ func CreateGame(ctx context.Context, username, gamename string, boardSize int, o
 }
 
 // AddPlayer adds a new player to the game. It's an error to add an existing player or if the color or corner is taken.
-func AddPlayer(ctx context.Context, gameID int64, username string, color, corner int) error {
+func AddPlayer(ctx context.Context, gameID int64, username string, opt *PlayerOptions) error {
 	return nil
 }
 

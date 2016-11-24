@@ -1,15 +1,15 @@
 package blokus
 
-// Colors
+type Color uint8
+
 const (
-	_      = iota
-	Blue   = iota
-	Yellow = iota
-	Red    = iota
-	Green  = iota
+	Blue Color = iota + 1
+	Yellow
+	Red
+	Green
 )
 
-func ColorName(c int) string {
+func ColorName(c Color) string {
 	switch c {
 	case Blue:
 		return "blue"
@@ -23,16 +23,25 @@ func ColorName(c int) string {
 	return "unknown"
 }
 
+type Corner uint8
+
+const (
+	TopLeft Corner = iota + 1
+	TopRight
+	BottomRight
+	BottomLeft
+)
+
 type Player struct {
 	// Unique name of the player.
 	name   string
-	color  int
+	color  Color
 	pieces []*Piece
 	// The corner the player starts from, e.g. [-1,-1], or [-1,20] for a size 20 board.
 	corner Coord
 }
 
-func (p *Player) GetColor() int {
+func (p *Player) GetColor() Color {
 	return p.color
 }
 
@@ -111,7 +120,7 @@ func getCorners(blocks []Coord) []Coord {
 	return c
 }
 
-func (p *Piece) GetColor() int {
+func (p *Piece) GetColor() Color {
 	return p.player.GetColor()
 }
 

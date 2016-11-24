@@ -54,7 +54,7 @@ func (g *Game) isOutOfBound(c Coord) bool {
 	return c.X < 0 || c.Y < 0 || c.X >= len(g.board.grid) || c.Y >= len(g.board.grid[0])
 }
 
-func (g *Game) AddPlayer(name string, color int, corner Coord) error {
+func (g *Game) AddPlayer(name string, color Color, corner Coord) error {
 	if ColorName(color) == "unknown" {
 		return fmt.Errorf("Unknown color value %v", color)
 	}
