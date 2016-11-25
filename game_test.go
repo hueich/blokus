@@ -50,7 +50,7 @@ func TestAddPlayer(t *testing.T) {
 		t.Fatalf("NewGame(): got %v, want no error", err)
 	}
 
-	if err := g.AddPlayer("foo", Red, Coord{-1, -1}); err != nil {
+	if err := g.AddPlayer("foo", Red, Coord{0, 0}); err != nil {
 		t.Fatalf("AddPlayer(): got %v, want no error", err)
 	}
 
@@ -64,8 +64,8 @@ func TestAddPlayer(t *testing.T) {
 	if got, want := p.color, Red; got != want {
 		t.Errorf("Player color: got %v, want %v", got, want)
 	}
-	if got, want := p.corner, (Coord{-1, -1}); got != want {
-		t.Errorf("Player corner: got %v, want %v", got, want)
+	if got, want := p.startPos, (Coord{0, 0}); got != want {
+		t.Errorf("Player start position: got %v, want %v", got, want)
 	}
 	if got, want := len(p.pieces), 2; got != want {
 		t.Fatalf("Player pieces len: got %v, want %v", got, want)
@@ -88,26 +88,26 @@ func TestAddPlayer(t *testing.T) {
 
 func TestAddPlayerInvalidColor(t *testing.T) {
 	g := newGameOrDie(t)
-	if err, colorValue := g.AddPlayer("foo", 99, Coord{10, 10}), "unknown"; err == nil || !strings.Contains(strings.ToLower(err.Error()), colorValue) {
-		t.Errorf("AddPlayer() with invalid color: got %v, want error to contain %v", err, colorValue)
+	if err, msg := g.AddPlayer("foo", 99, Coord{9, 9}), "color"; err == nil || !strings.Contains(err.Error(), msg) {
+		t.Errorf("AddPlayer() with invalid color: got %v, want error to contain %v", err, msg)
 	}
 }
 
-func TestAddPlayerInvalidCorner(t *testing.T) {
+func TestAddPlayerInvalidStartPosition(t *testing.T) {
 	g := newGameOrDie(t)
-	if err := g.AddPlayer("foo", Blue, Coord{9, 9}); err == nil || !strings.Contains(err.Error(), "corner") {
-		t.Errorf("AddPlayer() with invalid corner: got %v, want invalid corner error", err)
+	if err := g.AddPlayer("foo", Blue, Coord{10, 10}); err == nil || !strings.Contains(err.Error(), "position is out of bounds") {
+		t.Errorf("AddPlayer() with invalid start position: got %v, want starting position out of bounds error", err)
 	}
 }
 
 func TestAddPlayerDupeName(t *testing.T) {
 	g := newGameOrDie(t)
 	name := "foo"
-	if err := g.AddPlayer(name, Blue, Coord{10, 10}); err != nil {
+	if err := g.AddPlayer(name, Blue, Coord{9, 9}); err != nil {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	if err := g.AddPlayer(name, Yellow, Coord{-1, -1}); err == nil || !strings.Contains(err.Error(), name) {
+	if err := g.AddPlayer(name, Yellow, Coord{0, 0}); err == nil || !strings.Contains(err.Error(), name) {
 		t.Errorf("AddPlayer() with duplicate name: got %v, want duplicate name error containing %v", err, name)
 	}
 }
@@ -115,59 +115,23 @@ func TestAddPlayerDupeName(t *testing.T) {
 func TestAddPlayerDupeColor(t *testing.T) {
 	g := newGameOrDie(t)
 	color := Blue
-	if err := g.AddPlayer("foo", color, Coord{10, 10}); err != nil {
+	if err := g.AddPlayer("foo", color, Coord{9, 9}); err != nil {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	if err := g.AddPlayer("bar", color, Coord{-1, -1}); err == nil || !strings.Contains(err.Error(), color.String()) {
+	if err := g.AddPlayer("bar", color, Coord{0, 0}); err == nil || !strings.Contains(err.Error(), color.String()) {
 		t.Errorf("AddPlayer() with duplicate color: got %v, want duplicate color error containing %v", err, color)
 	}
 }
 
-func TestAddPlayerDupeCorner(t *testing.T) {
+func TestAddPlayerDupeStartPosition(t *testing.T) {
 	g := newGameOrDie(t)
-	if err := g.AddPlayer("foo", Blue, Coord{10, 10}); err != nil {
+	if err := g.AddPlayer("foo", Blue, Coord{9, 9}); err != nil {
 		t.Fatalf("Add first player: got error %v, want no error", err)
 	}
 
-	if err := g.AddPlayer("bar", Yellow, Coord{10, 10}); err == nil || !strings.Contains(err.Error(), "Corner") {
-		t.Errorf("AddPlayer() with duplicate corner: got %v, want duplicate corner error", err)
-	}
-}
-
-func TestCheckPlayerCornerFormatWithValidValues(t *testing.T) {
-	g := newGameOrDie(t)
-
-	corners := []Coord{
-		{-1, -1},
-		{-1, 10},
-		{10, -1},
-		{10, 10},
-	}
-	for _, c := range corners {
-		if err := g.checkPlayerCornerFormat(c); err != nil {
-			t.Errorf("checkPlayerCornerFormat(%v): got %v, want no error", c, err)
-		}
-	}
-}
-
-func TestCheckPlayerCornerFormatWithInvalidValues(t *testing.T) {
-	g := newGameOrDie(t)
-
-	corners := []Coord{
-		{-2, -1},
-		{0, -1},
-		{-1, 9},
-		{-1, 11},
-		{9, -1},
-		{11, -1},
-		{10, 9},
-		{10, 11},
-	}
-	for _, c := range corners {
-		if err := g.checkPlayerCornerFormat(c); err == nil {
-			t.Errorf("checkPlayerCornerFormat(%v): got no error, want error", c)
-		}
+	if err := g.AddPlayer("bar", Yellow, Coord{9, 9}); err == nil || !strings.Contains(err.Error(), "position already occupied") {
+		t.Errorf("AddPlayer() with duplicate start position: got %v, want position already occupied error", err)
 	}
 }
 
@@ -180,10 +144,10 @@ func newGameWithTwoPlayersAndTwoPieces(t *testing.T, size int) *Game {
 	if err != nil {
 		t.Fatalf("NewGame(): got %v, want no error", err)
 	}
-	if err := g.AddPlayer("foo", Blue, Coord{-1, -1}); err != nil {
+	if err := g.AddPlayer("foo", Blue, Coord{0, 0}); err != nil {
 		t.Fatalf("AddPlayer(foo): got %v, want no error", err)
 	}
-	if err := g.AddPlayer("bar", Yellow, Coord{size, size}); err != nil {
+	if err := g.AddPlayer("bar", Yellow, Coord{size - 1, size - 1}); err != nil {
 		t.Fatalf("AddPlayer(bar): got %v, want no error", err)
 	}
 	return g
@@ -294,7 +258,7 @@ func TestCheckPiecePlacementBlockIndexBoundsCheck(t *testing.T) {
 	}
 }
 
-func TestCheckPiecePlacementAtStartingCorner(t *testing.T) {
+func TestCheckPiecePlacementAtStartingPosition(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
 	p := g.players[0].pieces[1]
 	if err := g.checkPiecePlacement(Coord{0, 0}, p); err != nil {
@@ -376,8 +340,12 @@ func TestAdvanceTurnNoPlayers(t *testing.T) {
 
 func TestAdvanceTurn(t *testing.T) {
 	g := newGameOrDie(t)
-	g.AddPlayer("foo", Red, Coord{-1, -1})
-	g.AddPlayer("bar", Blue, Coord{-1, 10})
+	if err := g.AddPlayer("foo", Red, Coord{0, 0}); err != nil {
+		t.Fatalf("Error adding player 'foo': %v", err)
+	}
+	if err := g.AddPlayer("bar", Blue, Coord{0, 9}); err != nil {
+		t.Fatalf("Error adding player 'bar': %v", err)
+	}
 
 	if got, want := g.players[g.curPlayerIndex].name, "foo"; got != want {
 		t.Fatalf("Before AdvanceTurn(): got player %v, want player %v", got, want)

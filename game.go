@@ -50,12 +50,12 @@ func (g *Game) genPieceID() int {
 	return id
 }
 
-func (g *Game) AddPlayer(name string, color Color, corner Coord) error {
+func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 	if !color.IsValid() {
 		return fmt.Errorf("Unknown color value: %v", color)
 	}
-	if err := g.checkPlayerCornerFormat(corner); err != nil {
-		return err
+	if g.board.isOutOfBounds(startPos) {
+		return fmt.Errorf("Starting position is out of bounds: %v", startPos)
 	}
 	for _, p := range g.players {
 		if p.name == name {
@@ -64,14 +64,14 @@ func (g *Game) AddPlayer(name string, color Color, corner Coord) error {
 		if p.color == color {
 			return fmt.Errorf("Color %v already taken by player %v", color, p.name)
 		}
-		if p.corner == corner {
-			return fmt.Errorf("Corner aleady occupied by player %v", p.name)
+		if p.startPos == startPos {
+			return fmt.Errorf("Starting position already occupied by player %v", p.name)
 		}
 	}
 	p := &Player{
-		name:   name,
-		color:  color,
-		corner: corner,
+		name:     name,
+		color:    color,
+		startPos: startPos,
 	}
 	// Make a copy of the set of starting pieces of the game.
 	for _, ps := range g.pieceSet {
@@ -80,13 +80,6 @@ func (g *Game) AddPlayer(name string, color Color, corner Coord) error {
 		p.pieces = append(p.pieces, NewPiece(g.genPieceID(), p, b))
 	}
 	g.players = append(g.players, p)
-	return nil
-}
-
-func (g *Game) checkPlayerCornerFormat(c Coord) error {
-	if (c.X != -1 && c.X != len(g.board.grid)) || (c.Y != -1 && c.Y != len(g.board.grid[0])) {
-		return fmt.Errorf("Player corner coordinate is not valid: [%v]", c)
-	}
 	return nil
 }
 
@@ -163,6 +156,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 	// Offset the placement location with block's offset.
 	loc = Coord{loc.X - p.blocks[block].X, loc.Y - p.blocks[block].Y}
 
+	isStartPos := false
 	for _, b := range p.blocks {
 		// Change from relative to absolute coordinate.
 		b = Coord{b.X + loc.X, b.Y + loc.Y}
@@ -184,6 +178,13 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 				return fmt.Errorf("Piece is next to another %v piece", p.player.color)
 			}
 		}
+		// Check if this is the player's starting position.
+		if b == p.player.startPos {
+			isStartPos = true
+		}
+	}
+	if isStartPos {
+		return nil
 	}
 
 	validCorner := false
@@ -191,11 +192,6 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 		// Change from relative to absolute coordinate.
 		c = Coord{c.X + loc.X, c.Y + loc.Y}
 
-		// Check that the corner is the player's starting corner.
-		if c == p.player.corner {
-			validCorner = true
-			break
-		}
 		if g.board.isOutOfBounds(c) {
 			continue
 		}
@@ -206,7 +202,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 		}
 	}
 	if !validCorner {
-		return fmt.Errorf("Piece has no corner touching another %v piece or the player's starting corner", p.player.color)
+		return fmt.Errorf("Piece has no corner touching another %v piece, and it doesn't cover the player's starting position %v", p.player.color, p.player.startPos)
 	}
 	return nil
 }

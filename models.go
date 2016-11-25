@@ -31,22 +31,13 @@ func (c Color) String() string {
 	return ""
 }
 
-type Corner uint8
-
-const (
-	TopLeft Corner = iota + 1
-	TopRight
-	BottomRight
-	BottomLeft
-)
-
 type Player struct {
 	// Unique name of the player.
 	name   string
 	color  Color
 	pieces []*Piece
-	// The corner the player starts from, e.g. [-1,-1], or [-1,20] for a size 20 board.
-	corner Coord
+	// The position the player starts from, e.g. [0,0], or [0,19] for a size 20 board.
+	startPos Coord
 }
 
 func (p *Player) Color() Color {

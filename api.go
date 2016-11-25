@@ -13,8 +13,11 @@ type PlayerOptions struct {
 	// Color is the desired color of the player.
 	// If left with zero value, the game will automatically choose the next free color.
 	// It's an error if the specified color is already taken.
-	Color  Color
-	Corner Corner
+	Color Color
+
+	// StartPos is the starting coordinate for the player.
+	// If nil, the game will automatically choose the next free corner position.
+	StartPos *Coord
 }
 
 type Service interface {
