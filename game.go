@@ -50,10 +50,6 @@ func (g *Game) genPieceID() int {
 	return id
 }
 
-func (g *Game) isOutOfBound(c Coord) bool {
-	return c.X < 0 || c.Y < 0 || c.X >= len(g.board.grid) || c.Y >= len(g.board.grid[0])
-}
-
 func (g *Game) AddPlayer(name string, color Color, corner Coord) error {
 	if !color.IsValid() {
 		return fmt.Errorf("Unknown color value: %v", color)
@@ -98,7 +94,7 @@ func (g *Game) checkPlayerCornerFormat(c Coord) error {
 // This does not check for winner nor advance player turn.
 func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	// Preliminary input validation.
-	if g.isOutOfBound(loc) {
+	if g.board.isOutOfBounds(loc) {
 		return fmt.Errorf("Piece placement out of bounds: %v,%v", loc.X, loc.Y)
 	}
 	if rot < 0 || rot >= 4 {
@@ -171,7 +167,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 		// Change from relative to absolute coordinate.
 		b = Coord{b.X + loc.X, b.Y + loc.Y}
 		// Check that every block is inside the board
-		if g.isOutOfBound(b) {
+		if g.board.isOutOfBounds(b) {
 			return fmt.Errorf("Piece placement out of bounds")
 		}
 		// Check that every block is on an empty space
@@ -181,7 +177,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 		// Check that every block is not next to a piece of same color
 		for _, n := range neighbors {
 			n = Coord{b.X + n.X, b.Y + n.Y}
-			if g.isOutOfBound(n) {
+			if g.board.isOutOfBounds(n) {
 				continue
 			}
 			if s := g.board.grid[n.X][n.Y]; s.IsValid() && s == p.player.color {
@@ -200,7 +196,7 @@ func (g *Game) checkPiecePlacementAt(loc Coord, p *Piece, block int) error {
 			validCorner = true
 			break
 		}
-		if g.isOutOfBound(c) {
+		if g.board.isOutOfBounds(c) {
 			continue
 		}
 		// Check that at least one corner is touching a block of same color.

@@ -1,48 +1,107 @@
 package blokus
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
 
 func TestColorIsValid(t *testing.T) {
-	if want, got := true, Blue.IsValid(); want != got {
-		t.Errorf("Blue.IsValid(): got %v, want %v", got, want)
+	colors := []Color{
+		Blue,
+		Yellow,
+		Red,
+		Green,
 	}
-	if want, got := true, Yellow.IsValid(); want != got {
-		t.Errorf("Yellow.IsValid(): got %v, want %v", got, want)
-	}
-	if want, got := true, Red.IsValid(); want != got {
-		t.Errorf("Red.IsValid(): got %v, want %v", got, want)
-	}
-	if want, got := true, Green.IsValid(); want != got {
-		t.Errorf("Green.IsValid(): got %v, want %v", got, want)
+	for _, c := range colors {
+		t.Run(fmt.Sprintf("Color(%v)", c), func(t *testing.T) {
+			if got, want := c.IsValid(), true; got != want {
+				t.Errorf("%v.IsValid(): got %v, want %v", c, got, want)
+			}
+		})
 	}
 }
 
 func TestColorIsNotValid(t *testing.T) {
-	var c Color
-	c = 0
-	if want, got := false, c.IsValid(); want != got {
-		t.Errorf("Color(0).IsValid(): got %v, want %v", got, want)
+	colors := []Color{
+		0,
+		100,
 	}
-	c = 100
-	if want, got := false, c.IsValid(); want != got {
-		t.Errorf("Color(100).IsValid(): got %v, want %v", got, want)
+	for _, c := range colors {
+		t.Run(fmt.Sprintf("Color(%v)", c), func(t *testing.T) {
+			if got, want := c.IsValid(), false; got != want {
+				t.Errorf("%v.IsValid(): got %v, want %v", c, got, want)
+			}
+		})
 	}
 }
 
 func TestColorString(t *testing.T) {
-	if got, want := Red.String(), "red"; got != want {
-		t.Errorf("Red.String(): got %v, want %v", got, want)
+	testCases := []struct {
+		c    Color
+		want string
+	}{
+		{Blue, "blue"},
+		{Yellow, "yellow"},
+		{Red, "red"},
+		{Green, "green"},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("Color(%v)", tc.c), func(t *testing.T) {
+			if got := tc.c.String(); got != tc.want {
+				t.Errorf("%v.IsValid(): got %v, want %v", tc.c, got, tc.want)
+			}
+		})
 	}
 }
 
 func TestInvalidColorString(t *testing.T) {
-	var c Color
-	c = 0
-	if got, want := c.String(), ""; got != want {
-		t.Errorf("Color(0).String(): got %q, want %q", got, want)
+	colors := []Color{
+		0,
+		100,
+	}
+	for _, c := range colors {
+		t.Run(fmt.Sprintf("Color(%v)", c), func(t *testing.T) {
+			if got, want := c.String(), ""; got != want {
+				t.Errorf("%v.IsValid(): got %q, want %q", c, got, want)
+			}
+		})
+	}
+}
+
+func TestBoardCoordsWithinBounds(t *testing.T) {
+	coords := []Coord{
+		{0, 0},
+		{0, 9},
+		{9, 0},
+		{9, 9},
+		{4, 5},
+	}
+	b := NewBoard(10)
+	for _, c := range coords {
+		t.Run(fmt.Sprintf("Coord(%v)", c), func(t *testing.T) {
+			if got, want := b.isOutOfBounds(c), false; got != want {
+				t.Errorf("Board.isOutOfBounds(%v): got %v, want %v", c, got, want)
+			}
+		})
+	}
+}
+
+func TestBoardCoordsOutOfBounds(t *testing.T) {
+	coords := []Coord{
+		{0, -1},
+		{-1, 0},
+		{0, 10},
+		{10, 0},
+		{100, 100},
+	}
+	b := NewBoard(10)
+	for _, c := range coords {
+		t.Run(fmt.Sprintf("Coord(%v)", c), func(t *testing.T) {
+			if got, want := b.isOutOfBounds(c), true; got != want {
+				t.Errorf("Board.isOutOfBounds(%v): got %v, want %v", c, got, want)
+			}
+		})
 	}
 }
 

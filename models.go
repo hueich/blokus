@@ -73,6 +73,10 @@ func NewBoard(size int) *Board {
 	return &b
 }
 
+func (b *Board) isOutOfBounds(c Coord) bool {
+	return c.X < 0 || c.Y < 0 || c.X >= len(b.grid) || c.Y >= len(b.grid[0])
+}
+
 // Piece represents a puzzle piece, made up of one or more square blocks.
 type Piece struct {
 	id int
