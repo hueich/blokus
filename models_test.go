@@ -175,35 +175,6 @@ func TestGetCorners_ThreeBlockL(t *testing.T) {
 	}
 }
 
-func TestRotateCoord(t *testing.T) {
-	var c Coord
-
-	c = Coord{0, 0}
-	if got, want := rotateCoord(c), (Coord{0, 0}); got != want {
-		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
-	}
-
-	c = Coord{1, 2}
-	if got, want := rotateCoord(c), (Coord{2, -1}); got != want {
-		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
-	}
-
-	c = Coord{2, -1}
-	if got, want := rotateCoord(c), (Coord{-1, -2}); got != want {
-		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
-	}
-
-	c = Coord{-1, -2}
-	if got, want := rotateCoord(c), (Coord{-2, 1}); got != want {
-		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
-	}
-
-	c = Coord{-2, 1}
-	if got, want := rotateCoord(c), (Coord{1, 2}); got != want {
-		t.Errorf("Rotating %v, got %v, want %v", c, got, want)
-	}
-}
-
 func TestRotatePiece(t *testing.T) {
 	p := NewPiece(123, nil, []Coord{
 		{0, 0},
@@ -251,35 +222,6 @@ func TestRotatePiece(t *testing.T) {
 	}
 	if got := p.corners; !reflect.DeepEqual(got, cOrig) {
 		t.Errorf("4th rotated corners: got %v, want %v", got, cOrig)
-	}
-}
-
-func TestFlipCoord(t *testing.T) {
-	var c Coord
-
-	c = Coord{0, 0}
-	if got, want := flipCoord(c), (Coord{0, 0}); got != want {
-		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
-	}
-
-	c = Coord{1, 2}
-	if got, want := flipCoord(c), (Coord{1, -2}); got != want {
-		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
-	}
-
-	c = Coord{1, -2}
-	if got, want := flipCoord(c), (Coord{1, 2}); got != want {
-		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
-	}
-
-	c = Coord{-1, -2}
-	if got, want := flipCoord(c), (Coord{-1, 2}); got != want {
-		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
-	}
-
-	c = Coord{-1, 2}
-	if got, want := flipCoord(c), (Coord{-1, -2}); got != want {
-		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
 	}
 }
 

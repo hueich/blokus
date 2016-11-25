@@ -140,10 +140,6 @@ func (p *Piece) Rotate() {
 	p.rot = (p.rot + 1) % 4
 }
 
-func rotateCoord(c Coord) Coord {
-	return Coord{c.Y, -c.X}
-}
-
 // Flip piece horizontally, around the X-axis.
 func (p *Piece) Flip() {
 	for i, c := range p.blocks {
@@ -153,8 +149,4 @@ func (p *Piece) Flip() {
 		p.corners[i] = flipCoord(c)
 	}
 	p.flip = !p.flip
-}
-
-func flipCoord(c Coord) Coord {
-	return Coord{c.X, -c.Y}
 }
