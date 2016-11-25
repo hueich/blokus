@@ -1,7 +1,14 @@
 package blokus
 
+// GameID is the ID of a created game.
 type GameID int64
 
+// Coord represents a 2D coordinate, where X increases downward and Y increases rightward.
+type Coord struct {
+	X, Y int
+}
+
+// Color is an enum of available colors.
 type Color uint8
 
 const (
@@ -42,11 +49,6 @@ type Player struct {
 
 func (p *Player) Color() Color {
 	return p.color
-}
-
-// Coord represents a 2D coordinate, where X increases downward and Y increases rightward.
-type Coord struct {
-	X, Y int
 }
 
 // Board represents the game board.
