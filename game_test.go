@@ -162,7 +162,7 @@ func TestPlacePieceOutOfBound(t *testing.T) {
 		{5, 100},
 	}
 	for _, c := range coords {
-		err := g.PlacePiece(c, 1, 0, false)
+		err := g.PlacePiece(c, 1, Orientation{Rot0, false})
 		if err == nil {
 			t.Errorf("PlacePiece(loc:%v): got no error, want out of bounds error", c)
 		} else if !strings.Contains(err.Error(), "out of bounds") {
@@ -171,25 +171,15 @@ func TestPlacePieceOutOfBound(t *testing.T) {
 	}
 }
 
-func TestPlacePieceInvalidRotation(t *testing.T) {
-	g := newGameOrDie(t)
-	rots := []int{-10, -1, 4, 100}
-	for _, r := range rots {
-		if err := g.PlacePiece(Coord{1, 1}, 1, r, false); err == nil || !strings.Contains(err.Error(), "rotation") {
-			t.Errorf("PlacePiece(rot:%v): got %v, want invalid rotation error", r, err)
-		}
-	}
-}
-
 func TestPlacePieceAlreadyPlaced(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
 
 	p := g.players[0].pieces[0]
-	if err := g.PlacePiece(Coord{0, 0}, p.id, 0, false); err != nil {
+	if err := g.PlacePiece(Coord{0, 0}, p.id, Orientation{Rot0, false}); err != nil {
 		t.Fatalf("PlacePiece 1st time: got %v, want no error", err)
 	}
 
-	if err := g.PlacePiece(Coord{2, 2}, p.id, 0, false); err == nil || !strings.Contains(err.Error(), "already placed") {
+	if err := g.PlacePiece(Coord{2, 2}, p.id, Orientation{Rot0, false}); err == nil || !strings.Contains(err.Error(), "already placed") {
 		t.Errorf("PlacePiece() 2nd time: got %v, want piece already placed error", err)
 	}
 }
@@ -198,16 +188,17 @@ func TestPlacePieceOutOfTurn(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
 
 	p := g.players[1].pieces[0]
-	if err := g.PlacePiece(Coord{0, 0}, p.id, 0, false); err == nil || !strings.Contains(err.Error(), "turn") {
+	if err := g.PlacePiece(Coord{0, 0}, p.id, Orientation{Rot0, false}); err == nil || !strings.Contains(err.Error(), "turn") {
 		t.Errorf("PlacePiece(): got %v, want out of turn error", err)
 	}
 }
 
 func TestPlacePieceValid(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
+	numMovesBefore := len(g.moves)
 
 	p := g.players[0].pieces[0]
-	if err := g.PlacePiece(Coord{0, 0}, p.id, 3, false); err != nil {
+	if err := g.PlacePiece(Coord{0, 0}, p.id, Orientation{Rot270, false}); err != nil {
 		t.Fatalf("PlacePiece(): got %v, want no error", err)
 	}
 
@@ -227,6 +218,22 @@ func TestPlacePieceValid(t *testing.T) {
 	if got, want := *p.location, (Coord{0, 0}); got != want {
 		t.Errorf("Piece location: got %v, want %v", got, want)
 	}
+
+	// Move was recorded in the game.
+	if got, want := len(g.moves), numMovesBefore+1; got != want {
+		t.Errorf("Number of moves: got %v, want %v", got, want)
+	}
+	gotMove := g.moves[len(g.moves)-1]
+	wantMove := Move{
+		player: p.player,
+		piece:  p,
+		orient: Orientation{Rot270, false},
+		loc:    Coord{0, 0},
+	}
+	if gotMove != wantMove {
+		t.Errorf("Move info: got %v, want %v", gotMove, wantMove)
+	}
+
 	// Should not advance turn
 	if got, want := g.curPlayerIndex, 0; got != want {
 		t.Errorf("Player turn after placing piece: got %v, want %v", got, want)
@@ -268,7 +275,7 @@ func TestCheckPiecePlacementAtStartingPosition(t *testing.T) {
 
 func TestCheckPiecePlacementWithValidTouchingCorner(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
-	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[0].id, 0, false); err != nil {
+	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[0].id, Orientation{Rot0, false}); err != nil {
 		t.Fatalf("PlacePiece(blue 1st piece): got %v, want no error", err)
 	}
 
@@ -296,7 +303,7 @@ func TestCheckPiecePlacementOutOfBounds(t *testing.T) {
 func TestCheckPiecePlacementOverlapExistingPiece(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 3)
 	// Place an existing piece
-	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[1].id, 0, false); err != nil {
+	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[1].id, Orientation{Rot0, false}); err != nil {
 		t.Fatalf("Place initial piece: got %v, want no error", err)
 	}
 
@@ -308,7 +315,7 @@ func TestCheckPiecePlacementOverlapExistingPiece(t *testing.T) {
 
 func TestCheckPiecePlacementTouchingSameColor(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
-	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[0].id, 0, false); err != nil {
+	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[0].id, Orientation{Rot0, false}); err != nil {
 		t.Fatalf("PlacePiece(blue 1st piece): got %v, want no error", err)
 	}
 
@@ -320,7 +327,7 @@ func TestCheckPiecePlacementTouchingSameColor(t *testing.T) {
 
 func TestCheckPiecePlacementTouchingAnotherColor(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 3)
-	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[0].id, 0, false); err != nil {
+	if err := g.PlacePiece(Coord{0, 0}, g.players[0].pieces[0].id, Orientation{Rot0, false}); err != nil {
 		t.Fatalf("PlacePiece(blue 1st piece): got %v, want no error", err)
 	}
 	if err := g.checkPiecePlacement(Coord{0, 2}, g.players[1].pieces[0]); err != nil {

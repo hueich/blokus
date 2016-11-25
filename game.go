@@ -29,6 +29,8 @@ type Game struct {
 	nextPieceID int
 	// Index of the player whose turn it is.
 	curPlayerIndex int
+	// Moves that have been played.
+	moves []Move
 }
 
 func NewGame(id GameID, size int, pieces []*Piece) (*Game, error) {
@@ -83,16 +85,14 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 	return nil
 }
 
-// Place the piece, unless there's an error.
+// Place the piece on the board and record the move, unless there's an error.
 // This does not check for winner nor advance player turn.
-func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
+func (g *Game) PlacePiece(loc Coord, pieceID int, orient Orientation) error {
 	// Preliminary input validation.
 	if g.board.isOutOfBounds(loc) {
 		return fmt.Errorf("Piece placement out of bounds: %v,%v", loc.X, loc.Y)
 	}
-	if rot < 0 || rot >= 4 {
-		return fmt.Errorf("Invalid piece rotation: %v", rot)
-	}
+
 	// TODO: Integrate with database for more efficient piece lookup
 	var p *Piece
 	for _, player := range g.players {
@@ -116,11 +116,13 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	if p.player != g.players[g.curPlayerIndex] {
 		return fmt.Errorf("It's player %v's turn, but piece belongs to player %v", g.players[g.curPlayerIndex].name, p.player.name)
 	}
+
 	// Rotate/flip piece to specified orientation.
-	for p.rot != rot {
+	orient.Rot = orient.Rot.Normalize()
+	for p.rot != int(orient.Rot) {
 		p.Rotate()
 	}
-	if p.flip != flip {
+	if p.flip != orient.Flip {
 		p.Flip()
 	}
 
@@ -133,6 +135,14 @@ func (g *Game) PlacePiece(loc Coord, pieceID int, rot int, flip bool) error {
 	for _, b := range p.blocks {
 		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p.Color()
 	}
+
+	// Record the move.
+	g.moves = append(g.moves, Move{
+		player: p.player,
+		piece:  p,
+		orient: orient,
+		loc:    loc,
+	})
 
 	return nil
 }

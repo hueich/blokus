@@ -150,3 +150,14 @@ func (p *Piece) Flip() {
 	}
 	p.flip = !p.flip
 }
+
+type Move struct {
+	// The player who made the move. Cannot be nil.
+	player *Player
+	// The piece that was played. Nil if the turn was passed.
+	piece *Piece
+	// Orientation of the piece when played.
+	orient Orientation
+	// Location on the board where the piece was played.
+	loc Coord
+}
