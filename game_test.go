@@ -209,7 +209,7 @@ func TestPlacePieceValid(t *testing.T) {
 	}
 	for _, s := range spaces {
 		if got := g.board.grid[s.X][s.Y]; got != p.Color() {
-			t.Errorf("Board space [%v]: got %v, want occupied by piece %v", s, got, p.id)
+			t.Errorf("Board space [%v]: got %v, want occupied by piece colored %v", s, got, p.Color())
 		}
 	}
 	if p.location == nil {
