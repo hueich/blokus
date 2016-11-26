@@ -1,5 +1,9 @@
 package blokus
 
+import (
+	"fmt"
+)
+
 // GameID is the ID of a created game.
 type GameID int64
 
@@ -49,6 +53,18 @@ type Player struct {
 
 func (p *Player) Color() Color {
 	return p.color
+}
+
+func (p *Player) RemovePiece(index int) (*Piece, error) {
+	if index < 0 || index >= len(p.pieces) {
+		return nil, fmt.Errorf("Piece index out of range: %v", index)
+	}
+	piece := p.pieces[index]
+	if piece == nil {
+		return nil, fmt.Errorf("Piece at index %v is already used", index)
+	}
+	p.pieces[index] = nil
+	return piece, nil
 }
 
 // Board represents the game board.

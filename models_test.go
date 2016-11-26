@@ -3,6 +3,7 @@ package blokus
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -115,6 +116,39 @@ func TestPieceInheritsPlayerColor(t *testing.T) {
 	}
 	if got, want := piece.Color(), Yellow; got != want {
 		t.Errorf("Piece.Color(): got %v, want %v", got, want)
+	}
+}
+
+func TestPlayerRemovePiece(t *testing.T) {
+	piece0 := &Piece{}
+	piece1 := &Piece{}
+	player := &Player{
+		name:  "brown beard",
+		color: Red,
+		pieces: []*Piece{
+			piece0,
+			piece1,
+		},
+		startPos: Coord{},
+	}
+	// Remove piece at invalid index
+	if _, err := player.RemovePiece(-1); err == nil || !strings.Contains(err.Error(), "out of range") {
+		t.Errorf("RemovePiece(-1): got %v, want index out of range error", err)
+	}
+	if _, err := player.RemovePiece(2); err == nil || !strings.Contains(err.Error(), "out of range") {
+		t.Errorf("RemovePiece(2): got %v, want index out of range error", err)
+	}
+	// Remove piece at valid index
+	p, err := player.RemovePiece(0)
+	if err != nil {
+		t.Errorf("RemovePiece(0): got %v, want no error", err)
+	}
+	if p != piece0 {
+		t.Errorf("RemovePiece(0): Got piece %v, want piece %v", p, piece0)
+	}
+	// Remove already removed piece
+	if _, err := player.RemovePiece(0); err == nil || !strings.Contains(err.Error(), "already") {
+		t.Errorf("RemovePiece(0) again: got %v, want already used error", err)
 	}
 }
 
