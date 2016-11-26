@@ -70,8 +70,8 @@ func TestAddPlayer(t *testing.T) {
 	if got, want := len(p.pieces), 2; got != want {
 		t.Fatalf("Player pieces len: got %v, want %v", got, want)
 	}
-	if id0, id1 := p.pieces[0].id, p.pieces[1].id; id0 == id1 {
-		t.Errorf("Player pieces ids: got %v == %v, want not equal", id0, id1)
+	if id0, id1 := p.pieces[0], p.pieces[1]; id0 == id1 {
+		t.Errorf("Player pieces pointers: got %v == %v, want not equal", id0, id1)
 	}
 
 	if got, want := len(p.pieces[0].blocks), 1; got != want {
@@ -243,7 +243,7 @@ func TestPlacePieceValid(t *testing.T) {
 
 func TestCheckPiecePlacementNilPlayer(t *testing.T) {
 	g := newGameOrDie(t)
-	p := NewPiece(123, nil, []Coord{})
+	p := NewPiece(nil, []Coord{})
 	if err := g.checkPiecePlacement(Coord{8, 9}, p); err == nil || !strings.Contains(err.Error(), "no owning player") {
 		t.Errorf("checkPiecePlacement(): got %v, want no owning player error", err)
 	}

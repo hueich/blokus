@@ -88,7 +88,6 @@ func (b *Board) isOutOfBounds(c Coord) bool {
 
 // Piece represents a puzzle piece, made up of one or more square blocks.
 type Piece struct {
-	id int
 	// The player who owns this piece
 	player *Player
 	// The coordinate this piece was placed in, or nil if it's not placed yet.
@@ -104,9 +103,8 @@ type Piece struct {
 	flip bool
 }
 
-func NewPiece(id int, player *Player, blocks []Coord) *Piece {
+func NewPiece(player *Player, blocks []Coord) *Piece {
 	return &Piece{
-		id:      id,
 		player:  player,
 		blocks:  blocks,
 		corners: getCorners(blocks),
@@ -114,7 +112,7 @@ func NewPiece(id int, player *Player, blocks []Coord) *Piece {
 }
 
 func NewTemplatePiece(blocks []Coord) *Piece {
-	return NewPiece(0, nil, blocks)
+	return NewPiece(nil, blocks)
 }
 
 func getCorners(blocks []Coord) []Coord {

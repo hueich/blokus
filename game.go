@@ -25,8 +25,6 @@ type Game struct {
 	board   *Board
 	// Set of pieces every player starts with.
 	pieceSet []*Piece
-	// ID to use when generating the next new piece.
-	nextPieceID int
 	// Index of the player whose turn it is.
 	curPlayerIndex int
 	// Moves that have been played.
@@ -38,18 +36,10 @@ func NewGame(id GameID, size int, pieces []*Piece) (*Game, error) {
 		return nil, fmt.Errorf("Board size must be between 1 and %v. Provided: %v", maxBoardSize, size)
 	}
 	return &Game{
-		id:          id,
-		board:       NewBoard(size),
-		pieceSet:    pieces,
-		nextPieceID: 1,
+		id:       id,
+		board:    NewBoard(size),
+		pieceSet: pieces,
 	}, nil
-}
-
-func (g *Game) genPieceID() int {
-	// TODO: Implement locking or use database to keep track of IDs
-	id := g.nextPieceID
-	g.nextPieceID++
-	return id
 }
 
 func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
@@ -79,7 +69,7 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 	for _, ps := range g.pieceSet {
 		b := make([]Coord, len(ps.blocks))
 		copy(b, ps.blocks)
-		p.pieces = append(p.pieces, NewPiece(g.genPieceID(), p, b))
+		p.pieces = append(p.pieces, NewPiece(p, b))
 	}
 	g.players = append(g.players, p)
 	return nil
@@ -96,7 +86,7 @@ func (g *Game) PlacePiece(loc Coord, player *Player, pieceIndex int, orient Orie
 		return fmt.Errorf("Invalid player")
 	}
 
-	p, err := player.RemovePiece(pieceIndex)
+	piece, err := player.RemovePiece(pieceIndex)
 	if err != nil {
 		return err
 	}
@@ -108,27 +98,27 @@ func (g *Game) PlacePiece(loc Coord, player *Player, pieceIndex int, orient Orie
 
 	// Rotate/flip piece to specified orientation.
 	orient.Rot = orient.Rot.Normalize()
-	for p.rot != int(orient.Rot) {
-		p.Rotate()
+	for piece.rot != int(orient.Rot) {
+		piece.Rotate()
 	}
-	if p.flip != orient.Flip {
-		p.Flip()
+	if piece.flip != orient.Flip {
+		piece.Flip()
 	}
 
-	if err := g.checkPiecePlacement(loc, p); err != nil {
+	if err := g.checkPiecePlacement(loc, piece); err != nil {
 		return err
 	}
 
 	// Actually place the piece.
-	p.location = &Coord{loc.X, loc.Y}
-	for _, b := range p.blocks {
-		g.board.grid[loc.X+b.X][loc.Y+b.Y] = p.Color()
+	piece.location = &Coord{loc.X, loc.Y}
+	for _, b := range piece.blocks {
+		g.board.grid[loc.X+b.X][loc.Y+b.Y] = piece.Color()
 	}
 
 	// Record the move.
 	g.moves = append(g.moves, Move{
-		player: p.player,
-		piece:  p,
+		player: player,
+		piece:  piece,
 		orient: orient,
 		loc:    loc,
 	})

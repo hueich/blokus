@@ -210,7 +210,7 @@ func TestGetCorners_ThreeBlockL(t *testing.T) {
 }
 
 func TestRotatePiece(t *testing.T) {
-	p := NewPiece(123, nil, []Coord{
+	p := NewPiece(nil, []Coord{
 		{0, 0},
 		{1, 0},
 		{1, 1},
@@ -260,7 +260,7 @@ func TestRotatePiece(t *testing.T) {
 }
 
 func TestFlipPiece(t *testing.T) {
-	p := NewPiece(123, nil, []Coord{
+	p := NewPiece(nil, []Coord{
 		{0, 0},
 		{1, 0},
 		{1, 1},
