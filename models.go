@@ -61,7 +61,7 @@ func (p *Player) RemovePiece(index int) (*Piece, error) {
 	}
 	piece := p.pieces[index]
 	if piece == nil {
-		return nil, fmt.Errorf("Piece at index %v is already used", index)
+		return nil, fmt.Errorf("Piece at index %v is already placed", index)
 	}
 	p.pieces[index] = nil
 	return piece, nil

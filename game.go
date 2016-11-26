@@ -87,34 +87,23 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 
 // Place the piece on the board and record the move, unless there's an error.
 // This does not check for winner nor advance player turn.
-func (g *Game) PlacePiece(loc Coord, pieceID int, orient Orientation) error {
+func (g *Game) PlacePiece(loc Coord, player *Player, pieceIndex int, orient Orientation) error {
 	// Preliminary input validation.
 	if g.board.isOutOfBounds(loc) {
 		return fmt.Errorf("Piece placement out of bounds: %v,%v", loc.X, loc.Y)
 	}
-
-	// TODO: Integrate with database for more efficient piece lookup
-	var p *Piece
-	for _, player := range g.players {
-		for _, piece := range player.pieces {
-			if piece.id == pieceID {
-				p = piece
-				break
-			}
-		}
-	}
-	if p == nil {
-		return fmt.Errorf("Could not find piece with ID: %v", pieceID)
+	if player == nil {
+		return fmt.Errorf("Invalid player")
 	}
 
-	// Check if piece is already placed.
-	if p.location != nil {
-		return fmt.Errorf("Piece is already placed at [%v]", p.location)
+	p, err := player.RemovePiece(pieceIndex)
+	if err != nil {
+		return err
 	}
 
 	// Check if it's this player's turn.
-	if p.player != g.players[g.curPlayerIndex] {
-		return fmt.Errorf("It's player %v's turn, but piece belongs to player %v", g.players[g.curPlayerIndex].name, p.player.name)
+	if player != g.players[g.curPlayerIndex] {
+		return fmt.Errorf("Turn belongs to %v, not %v", g.players[g.curPlayerIndex].name, player.name)
 	}
 
 	// Rotate/flip piece to specified orientation.
