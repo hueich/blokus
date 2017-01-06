@@ -20,6 +20,15 @@ type Orientation struct {
 	Flip bool
 }
 
+func (o Orientation) TransformCoords(cs []Coord) []Coord {
+	out := make([]Coord, len(cs))
+	for _, c := range cs {
+		out = append(out, o.Transform(c))
+	}
+	return out
+
+}
+
 func (o Orientation) Transform(c Coord) Coord {
 	// TODO: Use rotation matrix instead of looping
 	for i := 0; i < int(Normalize(o.Rot)); i++ {

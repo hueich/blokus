@@ -98,8 +98,6 @@ type Piece struct {
 	blocks []Coord
 	// The corner squares of this piece, which was calculated from blocks and cached here.
 	corners []Coord
-	// The orientation of the piece.
-	orientation Orientation
 }
 
 func NewPiece(player *Player, blocks []Coord) *Piece {
@@ -140,15 +138,6 @@ func getCorners(blocks []Coord) []Coord {
 
 func (p *Piece) Color() Color {
 	return p.player.color
-}
-
-// OrientedBlocks gets the piece's blocks after the orientation is applied.
-func (p *Piece) OrientedBlocks() []Coord {
-	blocks := make([]Coord, len(p.blocks))
-	for _, c := range p.blocks {
-		blocks = append(blocks, p.orientation.Transform(c))
-	}
-	return blocks
 }
 
 // Rotate piece clockwise 90 degrees.
