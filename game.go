@@ -79,6 +79,7 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 // This does not check for winner nor advance player turn.
 func (g *Game) PlacePiece(loc Coord, player *Player, pieceIndex int, orient Orientation) error {
 	// Preliminary input validation.
+	// FIXME: This assumption is not true if the piece blocks don't start at [0,0]
 	if g.board.isOutOfBounds(loc) {
 		return fmt.Errorf("Piece placement out of bounds: %v,%v", loc.X, loc.Y)
 	}
@@ -97,8 +98,7 @@ func (g *Game) PlacePiece(loc Coord, player *Player, pieceIndex int, orient Orie
 	}
 
 	// Rotate/flip piece to specified orientation.
-	orient.Rot = orient.Rot.Normalize()
-	for piece.rot != int(orient.Rot) {
+	for piece.rot != int(Normalize(orient.Rot)) {
 		piece.Rotate()
 	}
 	if piece.flip != orient.Flip {

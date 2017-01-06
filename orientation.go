@@ -11,7 +11,7 @@ const (
 	rotEnd
 )
 
-func (r Rotation) Normalize() Rotation {
+func Normalize(r Rotation) Rotation {
 	return r % rotEnd
 }
 
@@ -22,7 +22,7 @@ type Orientation struct {
 
 func (o Orientation) Transform(c Coord) Coord {
 	// TODO: Use rotation matrix instead of looping
-	for i := 0; i < int(o.Rot); i++ {
+	for i := 0; i < int(Normalize(o.Rot)); i++ {
 		c = rotateCoord(c)
 	}
 	if o.Flip {

@@ -7,12 +7,12 @@ import (
 func TestRotationNormalize(t *testing.T) {
 	var rot Rotation
 	rot = Rot180
-	if got, want := rot.Normalize(), Rot180; got != want {
+	if got, want := Normalize(rot), Rot180; got != want {
 		t.Errorf("Normalize(Rot180): got %v, want %v", got, want)
 	}
 
 	rot = Rot180 + 4
-	if got, want := rot.Normalize(), Rot180; got != want {
+	if got, want := Normalize(rot), Rot180; got != want {
 		t.Errorf("Normalize(Rot180 + 4): got %v, want %v", got, want)
 	}
 }

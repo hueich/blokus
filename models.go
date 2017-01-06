@@ -94,13 +94,12 @@ type Piece struct {
 	// This is the coordinate where the (0,0) block is located.
 	location *Coord
 	// The square blocks this piece consists of. First block must be at (0,0) with other blocks relative to it.
+	// The blocks are stored in their original coordinates with no rotation or flipping. Orientation is used to calcuate the actual coordinates.
 	blocks []Coord
 	// The corner squares of this piece, which was calculated from blocks and cached here.
 	corners []Coord
-	// Number of 90 degree clockwise rotations, between 0-3, where 0 is no rotation, i.e. original orientation.
-	rot int
-	// True if the piece is flipped horizontally, i.e. around the X-axis.
-	flip bool
+	// The orientation of the piece.
+	orientation Orientation
 }
 
 func NewPiece(player *Player, blocks []Coord) *Piece {
@@ -143,6 +142,15 @@ func (p *Piece) Color() Color {
 	return p.player.color
 }
 
+// OrientedBlocks gets the piece's blocks after the orientation is applied.
+func (p *Piece) OrientedBlocks() []Coord {
+	blocks := make([]Coord, len(p.blocks))
+	for _, c := range p.blocks {
+		blocks = append(blocks, p.orientation.Transform(c))
+	}
+	return blocks
+}
+
 // Rotate piece clockwise 90 degrees.
 func (p *Piece) Rotate() {
 	for i, c := range p.blocks {
@@ -151,7 +159,7 @@ func (p *Piece) Rotate() {
 	for i, c := range p.corners {
 		p.corners[i] = rotateCoord(c)
 	}
-	p.rot = (p.rot + 1) % 4
+	p.rot = Normalize(p.rot + 1)
 }
 
 // Flip piece horizontally, around the X-axis.
