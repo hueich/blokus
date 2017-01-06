@@ -21,7 +21,7 @@ type Orientation struct {
 }
 
 func (o Orientation) TransformCoords(cs []Coord) []Coord {
-	out := make([]Coord, len(cs))
+	out := make([]Coord, 0, len(cs))
 	for _, c := range cs {
 		out = append(out, o.Transform(c))
 	}

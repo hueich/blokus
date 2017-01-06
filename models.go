@@ -140,28 +140,6 @@ func (p *Piece) Color() Color {
 	return p.player.color
 }
 
-// Rotate piece clockwise 90 degrees.
-func (p *Piece) Rotate() {
-	for i, c := range p.blocks {
-		p.blocks[i] = rotateCoord(c)
-	}
-	for i, c := range p.corners {
-		p.corners[i] = rotateCoord(c)
-	}
-	p.rot = Normalize(p.rot + 1)
-}
-
-// Flip piece horizontally, around the X-axis.
-func (p *Piece) Flip() {
-	for i, c := range p.blocks {
-		p.blocks[i] = flipCoord(c)
-	}
-	for i, c := range p.corners {
-		p.corners[i] = flipCoord(c)
-	}
-	p.flip = !p.flip
-}
-
 type Move struct {
 	// The player who made the move. Cannot be nil.
 	player *Player
