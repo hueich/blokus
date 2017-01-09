@@ -29,13 +29,13 @@ func TestNewGame(t *testing.T) {
 	if got, want := len(g.board.grid), 22; got != want {
 		t.Errorf("Game board size: got %v, want %v", got, want)
 	}
-	if got, want := len(g.pieceSet), 1; got != want {
+	if got, want := len(g.pieces), 1; got != want {
 		t.Fatalf("Game pieces len: got %v, want %v", got, want)
 	}
-	if got, want := len(g.pieceSet[0].blocks), 1; got != want {
+	if got, want := len(g.pieces[0].blocks), 1; got != want {
 		t.Fatalf("Game pieces[0] blocks len: got %v, want %v", got, want)
 	}
-	if got, want := g.pieceSet[0].blocks[0], (Coord{3, 4}); got != want {
+	if got, want := g.pieces[0].blocks[0], (Coord{3, 4}); got != want {
 		t.Errorf("Game pieces[0] blocks[0]: got %v, want %v", got, want)
 	}
 }
@@ -67,22 +67,13 @@ func TestAddPlayer(t *testing.T) {
 	if got, want := p.startPos, (Coord{0, 0}); got != want {
 		t.Errorf("Player start position: got %v, want %v", got, want)
 	}
-	if got, want := len(p.pieces), 2; got != want {
-		t.Fatalf("Player pieces len: got %v, want %v", got, want)
+	if got, want := len(p.placedPieces), len(ps); got != want {
+		t.Errorf("Player placed pieces length: got %v, want %v", got, want)
 	}
-	if id0, id1 := p.pieces[0], p.pieces[1]; id0 == id1 {
-		t.Errorf("Player pieces pointers: got %v == %v, want not equal", id0, id1)
-	}
-
-	if got, want := len(p.pieces[0].blocks), 1; got != want {
-		t.Fatalf("Player pieces[0] blocks len: got %v, want %v", got, want)
-	}
-	if got, want := p.pieces[0].blocks[0], (Coord{3, 4}); got != want {
-		t.Errorf("Player pieces[0] blocks[0]: got %v, want %v", got, want)
-	}
-	p.pieces[0].Rotate()
-	if got, want := g.pieceSet[0].blocks[0], (Coord{3, 4}); got != want {
-		t.Errorf("Game pieces[0] blocks[0] after rotating player's piece: got %v, want %v", got, want)
+	for i, placed := range p.placedPieces {
+		if placed {
+			t.Errorf("Player placed pieces slice at index %v: got true, want false", i)
+		}
 	}
 }
 
@@ -137,8 +128,8 @@ func TestAddPlayerDupeStartPosition(t *testing.T) {
 
 func newGameWithTwoPlayersAndTwoPieces(t *testing.T, size int) *Game {
 	tps := []*Piece{
-		NewTemplatePiece([]Coord{{0, 0}, {1, 0}, {2, 0}}),
-		NewTemplatePiece([]Coord{{0, 0}, {1, 0}, {1, 1}, {2, 1}}),
+		&Piece{blocks:[]Coord{{0, 0}, {1, 0}, {2, 0}}},
+		&Piece{blocks:[]Coord{{0, 0}, {1, 0}, {1, 1}, {2, 1}}},
 	}
 	g, err := NewGame(123, size, tps)
 	if err != nil {
@@ -151,24 +142,6 @@ func newGameWithTwoPlayersAndTwoPieces(t *testing.T, size int) *Game {
 		t.Fatalf("AddPlayer(bar): got %v, want no error", err)
 	}
 	return g
-}
-
-func TestPlacePieceOutOfBound(t *testing.T) {
-	g := newGameOrDie(t)
-	coords := []Coord{
-		{-1, 5},
-		{5, -1},
-		{100, 5},
-		{5, 100},
-	}
-	for _, c := range coords {
-		err := g.PlacePiece(c, nil, 1, Orientation{Rot0, false})
-		if err == nil {
-			t.Errorf("PlacePiece(loc:%v): got no error, want out of bounds error", c)
-		} else if !strings.Contains(err.Error(), "out of bounds") {
-			t.Errorf("PlacePiece(loc:%v): got %v, want out of bounds error", c, err)
-		}
-	}
 }
 
 func TestPlacePieceAlreadyPlaced(t *testing.T) {
