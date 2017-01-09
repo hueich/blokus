@@ -24,7 +24,7 @@ type Game struct {
 	players []*Player
 	board   *Board
 	// Set of pieces every player starts with.
-	pieceSet []*Piece
+	pieces []*Piece
 	// Index of the player whose turn it is.
 	curPlayerIndex int
 	// Moves that have been played.
@@ -41,7 +41,7 @@ func NewGame(id GameID, size int, pieces []*Piece) (*Game, error) {
 	return &Game{
 		id:       id,
 		board:    NewBoard(size),
-		pieceSet: pieces,
+		pieces: pieces,
 	}, nil
 }
 
@@ -70,7 +70,7 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 		name:     name,
 		color:    color,
 		startPos: startPos,
-		placedPieces: make([]bool, len(g.pieceSet)),
+		placedPieces: make([]bool, len(g.pieces)),
 	}
 	g.players = append(g.players, p)
 	return nil
@@ -87,14 +87,14 @@ func (g *Game) PlacePiece(player *Player, pieceIndex int, orient Orientation, lo
 		return fmt.Errorf("Turn belongs to %v, not %v", g.players[g.curPlayerIndex].name, player.name)
 	}
 
-	if pieceIndex < 0 || pieceIndex >= len(g.pieceSet) {
+	if pieceIndex < 0 || pieceIndex >= len(g.pieces) {
 		return fmt.Errorf("Piece index is out of range: %d", pieceIndex)
 	}
 	if err := player.checkPiecePlaceability(pieceIndex); err != nil {
 		return err
 	}
 
-	piece := g.pieceSet[pieceIndex]
+	piece := g.pieces[pieceIndex]
 	if piece == nil {
 		return fmt.Errorf("Piece at index %d is inexplicably nil", pieceIndex)
 	}
