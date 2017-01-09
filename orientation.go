@@ -26,7 +26,6 @@ func (o Orientation) TransformCoords(cs []Coord) []Coord {
 		out = append(out, o.Transform(c))
 	}
 	return out
-
 }
 
 func (o Orientation) Transform(c Coord) Coord {

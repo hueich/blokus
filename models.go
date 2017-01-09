@@ -16,7 +16,7 @@ type Coord struct {
 type Color uint8
 
 const (
-	Empty Color = iota
+	colorEmpty Color = iota
 
 	Blue
 	Yellow
@@ -32,7 +32,7 @@ func (c Color) IsColored() bool {
 
 func (c Color) String() string {
 	switch c {
-	case Empty:
+	case colorEmpty:
 		return "empty"
 
 	case Blue:
@@ -61,14 +61,22 @@ func (p *Player) Color() Color {
 	return p.color
 }
 
-func (p *Player) PlacePiece(index int) error {
+func (p *Player) checkPiecePlaceability(index int) error {
 	if index < 0 || index >= len(p.placedPieces) {
 		return fmt.Errorf("Piece index out of range: %v", index)
 	}
 	if p.placedPieces[index] {
 		return fmt.Errorf("Piece at index %d is already placed", index)
 	}
+	return nil
+}
+
+func (p *Player) placePiece(index int) error {
+	if err := p.checkPiecePlaceability(index); err != nil {
+		return err
+	}
 	p.placedPieces[index] = true
+	return nil
 }
 
 // Board represents the game board.
@@ -97,8 +105,6 @@ type Piece struct {
 	blocks []Coord
 	// The corner squares of this piece, which was calculated from blocks and cached here.
 	corners []Coord
-	// The squares that border blocks of this piece.
-	sides []Coord
 }
 
 func NewPiece(blocks []Coord) (*Piece, error) {
