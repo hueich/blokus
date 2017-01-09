@@ -84,12 +84,12 @@ func TestTransformCoords(t *testing.T) {
 		{2, 1},
 	}
 
-	o := Orientation{Rot0, false}
+	o := Orientation{Rot90, true}
 	if got, want := o.TransformCoords(cs), []Coord{
 		{0, 0},
-		{1, 0},
+		{0, 1},
 		{1, 1},
-		{2, 1},
+		{1, 2},
 	}; !reflect.DeepEqual(got, want) {
 		t.Errorf("TransformCoords(%v): got %v, want %v", o, got, want)
 	}

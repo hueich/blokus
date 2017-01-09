@@ -6,15 +6,23 @@ import (
 )
 
 func newGameOrDie(t *testing.T) *Game {
-	g, err := NewGame(123, 10, []*Piece{})
+	g, err := NewGame(123, 10, []*Piece{newPieceOrDie(t, []Coord{{0, 0}})})
 	if err != nil {
 		t.Fatalf("NewGame(): got %v, want no error", err)
 	}
 	return g
 }
 
+func newPieceOrDie(t *testing.T, blocks []Coord) *Piece {
+	p, err := NewPiece(blocks)
+	if err != nil {
+		t.Fatalf("NewPiece(): got %v, want no error", err)
+	}
+	return p
+}
+
 func TestNewGame(t *testing.T) {
-	p := &Piece{blocks: []Coord{Coord{3, 4}}}
+	p := newPieceOrDie(t, []Coord{Coord{3, 4}})
 	g, err := NewGame(123, 22, []*Piece{p})
 	if err != nil {
 		t.Fatalf("NewGame(): got %v, want no error", err)
@@ -42,8 +50,8 @@ func TestNewGame(t *testing.T) {
 
 func TestAddPlayer(t *testing.T) {
 	ps := []*Piece{
-		{blocks: []Coord{Coord{3, 4}}},
-		{blocks: []Coord{Coord{5, 6}}},
+		newPieceOrDie(t, []Coord{{3, 4}}),
+		newPieceOrDie(t, []Coord{{5, 6}}),
 	}
 	g, err := NewGame(123, 22, ps)
 	if err != nil {
@@ -128,8 +136,8 @@ func TestAddPlayerDupeStartPosition(t *testing.T) {
 
 func newGameWithTwoPlayersAndTwoPieces(t *testing.T, size int) *Game {
 	tps := []*Piece{
-		&Piece{blocks: []Coord{{0, 0}, {1, 0}, {2, 0}}},
-		&Piece{blocks: []Coord{{0, 0}, {1, 0}, {1, 1}, {2, 1}}},
+		newPieceOrDie(t, []Coord{{0, 0}, {1, 0}, {2, 0}}),
+		newPieceOrDie(t, []Coord{{0, 0}, {1, 0}, {1, 1}, {2, 1}}),
 	}
 	g, err := NewGame(123, size, tps)
 	if err != nil {
