@@ -39,8 +39,8 @@ func NewGame(id GameID, size int, pieces []*Piece) (*Game, error) {
 		return nil, fmt.Errorf("Cannot create game with no pieces")
 	}
 	return &Game{
-		id:       id,
-		board:    NewBoard(size),
+		id:     id,
+		board:  NewBoard(size),
 		pieces: pieces,
 	}, nil
 }
@@ -67,9 +67,9 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 		}
 	}
 	p := &Player{
-		name:     name,
-		color:    color,
-		startPos: startPos,
+		name:         name,
+		color:        color,
+		startPos:     startPos,
 		placedPieces: make([]bool, len(g.pieces)),
 	}
 	g.players = append(g.players, p)
@@ -99,7 +99,7 @@ func (g *Game) PlacePiece(player *Player, pieceIndex int, orient Orientation, lo
 		return fmt.Errorf("Piece at index %d is inexplicably nil", pieceIndex)
 	}
 	orientedPiece := &Piece{
-		blocks: orient.TransformCoords(piece.blocks),
+		blocks:  orient.TransformCoords(piece.blocks),
 		corners: orient.TransformCoords(piece.corners),
 	}
 
@@ -117,10 +117,10 @@ func (g *Game) PlacePiece(player *Player, pieceIndex int, orient Orientation, lo
 
 	// Record the move.
 	g.moves = append(g.moves, &Move{
-		player: player,
-		pieceIndex:  pieceIndex,
-		orient: orient,
-		loc:    loc,
+		player:     player,
+		pieceIndex: pieceIndex,
+		orient:     orient,
+		loc:        loc,
 	})
 
 	return nil

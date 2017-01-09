@@ -49,8 +49,8 @@ func (c Color) String() string {
 
 type Player struct {
 	// Unique name of the player.
-	name   string
-	color  Color
+	name  string
+	color Color
 	// The position the player starts from, e.g. [0,0], or [0,19] for a size 20 board.
 	startPos Coord
 	// True at an index means the corresponding piece has been placed on the board.

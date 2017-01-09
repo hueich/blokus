@@ -1,6 +1,7 @@
 package blokus
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -72,5 +73,24 @@ func TestFlipCoord(t *testing.T) {
 	c = Coord{-1, 2}
 	if got, want := flipCoord(c), (Coord{-1, -2}); got != want {
 		t.Errorf("Flipping %v, got %v, want %v", c, got, want)
+	}
+}
+
+func TestTransformCoords(t *testing.T) {
+	cs := []Coord{
+		{0, 0},
+		{1, 0},
+		{1, 1},
+		{2, 1},
+	}
+
+	o := Orientation{Rot0, false}
+	if got, want := o.TransformCoords(cs), []Coord{
+		{0, 0},
+		{1, 0},
+		{1, 1},
+		{2, 1},
+	}; !reflect.DeepEqual(got, want) {
+		t.Errorf("TransformCoords(%v): got %v, want %v", o, got, want)
 	}
 }
