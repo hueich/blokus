@@ -46,9 +46,10 @@ type Player struct {
 	// Unique name of the player.
 	name   string
 	color  Color
-	pieces []*Piece
 	// The position the player starts from, e.g. [0,0], or [0,19] for a size 20 board.
 	startPos Coord
+	// True at an index means the corresponding piece has been placed on the board.
+	placedPieces []bool
 }
 
 func (p *Player) Color() Color {
@@ -88,28 +89,24 @@ func (b *Board) isOutOfBounds(c Coord) bool {
 
 // Piece represents a puzzle piece, made up of one or more square blocks.
 type Piece struct {
-	// The player who owns this piece
-	player *Player
-	// The coordinate this piece was placed in, or nil if it's not placed yet.
-	// This is the coordinate where the (0,0) block is located.
-	location *Coord
 	// The square blocks this piece consists of. First block must be at (0,0) with other blocks relative to it.
 	// The blocks are stored in their original coordinates with no rotation or flipping. Orientation is used to calcuate the actual coordinates.
 	blocks []Coord
 	// The corner squares of this piece, which was calculated from blocks and cached here.
 	corners []Coord
+	// The squares that border blocks of this piece.
+	sides []Coord
 }
 
-func NewPiece(player *Player, blocks []Coord) *Piece {
-	return &Piece{
-		player:  player,
-		blocks:  blocks,
+func NewPiece(blocks []Coord) (*Piece, error) {
+	p := &Piece{
+		blocks:  make([]Coord, len(blocks)),
 		corners: getCorners(blocks),
 	}
-}
-
-func NewTemplatePiece(blocks []Coord) *Piece {
-	return NewPiece(nil, blocks)
+	if copied := copy(p.blocks, blocks); copied != len(blocks) {
+		return nil, fmt.Errorf("Copied %d blocks, but should've copied %d blocks", copied, len(blocks))
+	}
+	return p, nil
 }
 
 func getCorners(blocks []Coord) []Coord {
@@ -136,17 +133,14 @@ func getCorners(blocks []Coord) []Coord {
 	return c
 }
 
-func (p *Piece) Color() Color {
-	return p.player.color
-}
-
 type Move struct {
 	// The player who made the move. Cannot be nil.
 	player *Player
-	// The piece that was played. Nil if the turn was passed.
-	piece *Piece
+	// The index of the piece that was played. Negative if the turn was passed.
+	pieceIndex int
 	// Orientation of the piece when played.
 	orient Orientation
 	// Location on the board where the piece was played.
+	// This is the coordinate where the (0,0) block of the piece is located.
 	loc Coord
 }
