@@ -16,7 +16,9 @@ type Coord struct {
 type Color uint8
 
 const (
-	Blue Color = iota + 1
+	Empty Color = iota
+
+	Blue
 	Yellow
 	Red
 	Green
@@ -24,12 +26,15 @@ const (
 	colorEnd
 )
 
-func (c Color) IsValid() bool {
+func (c Color) IsColored() bool {
 	return c > 0 && c < colorEnd
 }
 
 func (c Color) String() string {
 	switch c {
+	case Empty:
+		return "empty"
+
 	case Blue:
 		return "blue"
 	case Yellow:
@@ -39,7 +44,7 @@ func (c Color) String() string {
 	case Green:
 		return "green"
 	}
-	return ""
+	return "unknown color"
 }
 
 type Player struct {
@@ -56,16 +61,14 @@ func (p *Player) Color() Color {
 	return p.color
 }
 
-func (p *Player) RemovePiece(index int) (*Piece, error) {
-	if index < 0 || index >= len(p.pieces) {
-		return nil, fmt.Errorf("Piece index out of range: %v", index)
+func (p *Player) PlacePiece(index int) error {
+	if index < 0 || index >= len(p.placedPieces) {
+		return fmt.Errorf("Piece index out of range: %v", index)
 	}
-	piece := p.pieces[index]
-	if piece == nil {
-		return nil, fmt.Errorf("Piece at index %v is already placed", index)
+	if p.placedPieces[index] {
+		return fmt.Errorf("Piece at index %d is already placed", index)
 	}
-	p.pieces[index] = nil
-	return piece, nil
+	p.placedPieces[index] = true
 }
 
 // Board represents the game board.
@@ -74,13 +77,13 @@ type Board struct {
 }
 
 func NewBoard(size int) *Board {
-	b := Board{
+	b := &Board{
 		grid: make([][]Color, size),
 	}
 	for i := range b.grid {
 		b.grid[i] = make([]Color, size)
 	}
-	return &b
+	return b
 }
 
 func (b *Board) isOutOfBounds(c Coord) bool {
@@ -99,12 +102,13 @@ type Piece struct {
 }
 
 func NewPiece(blocks []Coord) (*Piece, error) {
-	p := &Piece{
-		blocks:  make([]Coord, len(blocks)),
-		corners: getCorners(blocks),
+	if len(blocks) == 0 {
+		return nil, fmt.Errorf("Cannot create a piece with no blocks")
 	}
-	if copied := copy(p.blocks, blocks); copied != len(blocks) {
-		return nil, fmt.Errorf("Copied %d blocks, but should've copied %d blocks", copied, len(blocks))
+	p := &Piece{
+		// Make a copy, in case the same block slice is used to make other pieces.
+		blocks:  append([]Coord(nil), blocks...),
+		corners: getCorners(blocks),
 	}
 	return p, nil
 }
