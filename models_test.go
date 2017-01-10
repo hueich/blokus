@@ -3,6 +3,7 @@ package blokus
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -15,8 +16,8 @@ func TestColorIsValid(t *testing.T) {
 	}
 	for _, c := range colors {
 		t.Run(fmt.Sprintf("Color(%v)", c), func(t *testing.T) {
-			if got, want := c.IsValid(), true; got != want {
-				t.Errorf("%v.IsValid(): got %v, want %v", c, got, want)
+			if got, want := c.IsColored(), true; got != want {
+				t.Errorf("%v.IsColored(): got %v, want %v", c, got, want)
 			}
 		})
 	}
@@ -29,8 +30,8 @@ func TestColorIsNotValid(t *testing.T) {
 	}
 	for _, c := range colors {
 		t.Run(fmt.Sprintf("Color(%v)", c), func(t *testing.T) {
-			if got, want := c.IsValid(), false; got != want {
-				t.Errorf("%v.IsValid(): got %v, want %v", c, got, want)
+			if got, want := c.IsColored(), false; got != want {
+				t.Errorf("%v.IsColored(): got %v, want %v", c, got, want)
 			}
 		})
 	}
@@ -49,23 +50,24 @@ func TestColorString(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Color(%v)", tc.c), func(t *testing.T) {
 			if got := tc.c.String(); got != tc.want {
-				t.Errorf("%v.IsValid(): got %v, want %v", tc.c, got, tc.want)
+				t.Errorf("%v.IsColored(): got %v, want %v", tc.c, got, tc.want)
 			}
 		})
 	}
 }
 
-func TestInvalidColorString(t *testing.T) {
-	colors := []Color{
-		0,
-		100,
+func TestEmptyColorString(t *testing.T) {
+	c := colorEmpty
+	if got, want := c.String(), "empty"; got != want {
+		t.Errorf("%v.String(): got %q, want %q", c, got, want)
 	}
-	for _, c := range colors {
-		t.Run(fmt.Sprintf("Color(%v)", c), func(t *testing.T) {
-			if got, want := c.String(), ""; got != want {
-				t.Errorf("%v.IsValid(): got %q, want %q", c, got, want)
-			}
-		})
+}
+
+func TestInvalidColorString(t *testing.T) {
+	var c Color
+	c = 100
+	if got, want := c.String(), "unknown color"; got != want {
+		t.Errorf("%v.String(): got %q, want %q", c, got, want)
 	}
 }
 
@@ -105,16 +107,31 @@ func TestBoardCoordsOutOfBounds(t *testing.T) {
 	}
 }
 
-func TestPieceInheritsPlayerColor(t *testing.T) {
-	player := Player{
-		name:  "foo",
-		color: Yellow,
+func TestPlayerPlacePiece(t *testing.T) {
+	player := &Player{
+		name:     "brown beard",
+		color:    Red,
+		startPos: Coord{},
+		placedPieces: []bool{
+			false,
+			false,
+		},
 	}
-	piece := Piece{
-		player: &player,
+	// Remove piece at invalid index
+	if err := player.placePiece(-1); err == nil || !strings.Contains(err.Error(), "out of range") {
+		t.Errorf("placePiece(-1): got %v, want index out of range error", err)
 	}
-	if got, want := piece.Color(), Yellow; got != want {
-		t.Errorf("Piece.Color(): got %v, want %v", got, want)
+	if err := player.placePiece(2); err == nil || !strings.Contains(err.Error(), "out of range") {
+		t.Errorf("placePiece(2): got %v, want index out of range error", err)
+	}
+	// Remove piece at valid index
+	err := player.placePiece(0)
+	if err != nil {
+		t.Errorf("placePiece(0): got %v, want no error", err)
+	}
+	// Remove already removed piece
+	if err := player.placePiece(0); err == nil || !strings.Contains(err.Error(), "already") {
+		t.Errorf("placePiece(0) again: got %v, want already used error", err)
 	}
 }
 
@@ -175,8 +192,9 @@ func TestGetCorners_ThreeBlockL(t *testing.T) {
 	}
 }
 
+/*
 func TestRotatePiece(t *testing.T) {
-	p := NewPiece(123, nil, []Coord{
+	p := NewPiece(nil, []Coord{
 		{0, 0},
 		{1, 0},
 		{1, 1},
@@ -226,7 +244,7 @@ func TestRotatePiece(t *testing.T) {
 }
 
 func TestFlipPiece(t *testing.T) {
-	p := NewPiece(123, nil, []Coord{
+	p := NewPiece(nil, []Coord{
 		{0, 0},
 		{1, 0},
 		{1, 1},
@@ -251,3 +269,4 @@ func TestFlipPiece(t *testing.T) {
 		t.Error("Flipped state: got false, want true")
 	}
 }
+*/

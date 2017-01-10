@@ -1,5 +1,9 @@
 package blokus
 
+import (
+	"fmt"
+)
+
 // GameID is the ID of a created game.
 type GameID int64
 
@@ -12,7 +16,9 @@ type Coord struct {
 type Color uint8
 
 const (
-	Blue Color = iota + 1
+	colorEmpty Color = iota
+
+	Blue
 	Yellow
 	Red
 	Green
@@ -20,12 +26,15 @@ const (
 	colorEnd
 )
 
-func (c Color) IsValid() bool {
+func (c Color) IsColored() bool {
 	return c > 0 && c < colorEnd
 }
 
 func (c Color) String() string {
 	switch c {
+	case colorEmpty:
+		return "empty"
+
 	case Blue:
 		return "blue"
 	case Yellow:
@@ -35,20 +44,39 @@ func (c Color) String() string {
 	case Green:
 		return "green"
 	}
-	return ""
+	return "unknown color"
 }
 
 type Player struct {
 	// Unique name of the player.
-	name   string
-	color  Color
-	pieces []*Piece
+	name  string
+	color Color
 	// The position the player starts from, e.g. [0,0], or [0,19] for a size 20 board.
 	startPos Coord
+	// True at an index means the corresponding piece has been placed on the board.
+	placedPieces []bool
 }
 
 func (p *Player) Color() Color {
 	return p.color
+}
+
+func (p *Player) checkPiecePlaceability(index int) error {
+	if index < 0 || index >= len(p.placedPieces) {
+		return fmt.Errorf("Piece index out of range: %v", index)
+	}
+	if p.placedPieces[index] {
+		return fmt.Errorf("Piece at index %d is already placed", index)
+	}
+	return nil
+}
+
+func (p *Player) placePiece(index int) error {
+	if err := p.checkPiecePlaceability(index); err != nil {
+		return err
+	}
+	p.placedPieces[index] = true
+	return nil
 }
 
 // Board represents the game board.
@@ -57,13 +85,13 @@ type Board struct {
 }
 
 func NewBoard(size int) *Board {
-	b := Board{
+	b := &Board{
 		grid: make([][]Color, size),
 	}
 	for i := range b.grid {
 		b.grid[i] = make([]Color, size)
 	}
-	return &b
+	return b
 }
 
 func (b *Board) isOutOfBounds(c Coord) bool {
@@ -72,33 +100,23 @@ func (b *Board) isOutOfBounds(c Coord) bool {
 
 // Piece represents a puzzle piece, made up of one or more square blocks.
 type Piece struct {
-	id int
-	// The player who owns this piece
-	player *Player
-	// The coordinate this piece was placed in, or nil if it's not placed yet.
-	// This is the coordinate where the (0,0) block is located.
-	location *Coord
 	// The square blocks this piece consists of. First block must be at (0,0) with other blocks relative to it.
+	// The blocks are stored in their original coordinates with no rotation or flipping. Orientation is used to calcuate the actual coordinates.
 	blocks []Coord
 	// The corner squares of this piece, which was calculated from blocks and cached here.
 	corners []Coord
-	// Number of 90 degree clockwise rotations, between 0-3, where 0 is no rotation, i.e. original orientation.
-	rot int
-	// True if the piece is flipped horizontally, i.e. around the X-axis.
-	flip bool
 }
 
-func NewPiece(id int, player *Player, blocks []Coord) *Piece {
-	return &Piece{
-		id:      id,
-		player:  player,
-		blocks:  blocks,
+func NewPiece(blocks []Coord) (*Piece, error) {
+	if len(blocks) == 0 {
+		return nil, fmt.Errorf("Cannot create a piece with no blocks")
+	}
+	p := &Piece{
+		// Make a copy, in case the same block slice is used to make other pieces.
+		blocks:  append([]Coord(nil), blocks...),
 		corners: getCorners(blocks),
 	}
-}
-
-func NewTemplatePiece(blocks []Coord) *Piece {
-	return NewPiece(0, nil, blocks)
+	return p, nil
 }
 
 func getCorners(blocks []Coord) []Coord {
@@ -125,39 +143,14 @@ func getCorners(blocks []Coord) []Coord {
 	return c
 }
 
-func (p *Piece) Color() Color {
-	return p.player.color
-}
-
-// Rotate piece clockwise 90 degrees.
-func (p *Piece) Rotate() {
-	for i, c := range p.blocks {
-		p.blocks[i] = rotateCoord(c)
-	}
-	for i, c := range p.corners {
-		p.corners[i] = rotateCoord(c)
-	}
-	p.rot = (p.rot + 1) % 4
-}
-
-// Flip piece horizontally, around the X-axis.
-func (p *Piece) Flip() {
-	for i, c := range p.blocks {
-		p.blocks[i] = flipCoord(c)
-	}
-	for i, c := range p.corners {
-		p.corners[i] = flipCoord(c)
-	}
-	p.flip = !p.flip
-}
-
 type Move struct {
 	// The player who made the move. Cannot be nil.
 	player *Player
-	// The piece that was played. Nil if the turn was passed.
-	piece *Piece
+	// The index of the piece that was played. Negative if the turn was passed.
+	pieceIndex int
 	// Orientation of the piece when played.
 	orient Orientation
 	// Location on the board where the piece was played.
+	// This is the coordinate where the (0,0) block of the piece is located.
 	loc Coord
 }
