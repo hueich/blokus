@@ -1,6 +1,7 @@
 package blokus
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -131,6 +132,38 @@ func TestAddPlayerDupeStartPosition(t *testing.T) {
 
 	if err := g.AddPlayer("bar", Yellow, Coord{9, 9}); err == nil || !strings.Contains(err.Error(), "position already occupied") {
 		t.Errorf("AddPlayer() with duplicate start position: got %v, want position already occupied error", err)
+	}
+}
+
+func TestAddPlayerAutoAssignColor(t *testing.T) {
+	g := newGameOrDie(t)
+	if err := g.AddPlayer("foo", colorEmpty, Coord{0, 0}); err != nil {
+		t.Errorf("Add player with no color: got error %v, want no error", err)
+	}
+	if got, want := len(g.players), 1; got != want {
+		t.Errorf("Num players after AddPlayer(): got %v, want %v", got, want)
+	}
+	if got, want := g.players[0].color, Color(1); got != want {
+		t.Errorf("Player color after AddPlayer(): got %v, want %v", got, want)
+	}
+}
+
+func TestAddPlayerAutoAssignColorNoMoreColors(t *testing.T) {
+	g := newGameOrDie(t)
+	for i := 1; i < int(colorEnd); i++ {
+		if err := g.AddPlayer(fmt.Sprintf("foo_%d", i), colorEmpty, Coord{0, i}); err != nil {
+			t.Fatalf("Add player %d with no color: got error %v, want no error", i, err)
+		}
+	}
+	colors := make(map[Color]bool)
+	for _, p := range g.players {
+		colors[p.color] = true
+	}
+	if got, want := len(colors), int(colorEnd)-1; got != want {
+		t.Errorf("Num colors after adding max players: got %v, want %v", got, want)
+	}
+	if err := g.AddPlayer("bar", colorEmpty, Coord{1, 0}); err == nil || !strings.Contains(err.Error(), "color") {
+		t.Errorf("Add extra player with no color: got %v, want error about color", err)
 	}
 }
 

@@ -107,16 +107,40 @@ func TestBoardCoordsOutOfBounds(t *testing.T) {
 	}
 }
 
-func TestPlayerPlacePiece(t *testing.T) {
-	player := &Player{
-		name:     "brown beard",
-		color:    Red,
-		startPos: Coord{},
-		placedPieces: []bool{
-			false,
-			false,
-		},
+func TestNewPlayer(t *testing.T) {
+	p, err := NewPlayer("brown beard", Red, Coord{0, 0}, 2)
+	if err != nil {
+		t.Errorf("NewPlayer: got %v, want no error", err)
 	}
+	if p == nil {
+		t.Errorf("NewPlayer: got nil player, want player")
+	}
+}
+
+func TestNewPlayerNoName(t *testing.T) {
+	if _, err := NewPlayer("", Red, Coord{0, 0}, 2); err == nil || !strings.Contains(err.Error(), "name") {
+		t.Errorf("NewPlayer with no name: got %v, want error about name", err)
+	}
+}
+
+func TestNewPlayerInvalidColor(t *testing.T) {
+	if _, err := NewPlayer("brown beard", 0, Coord{0, 0}, 2); err == nil || !strings.Contains(err.Error(), "color") {
+		t.Errorf("NewPlayer with invalid color: got %v, want error about color", err)
+	}
+}
+
+func TestNewPlayerNoPieces(t *testing.T) {
+	if _, err := NewPlayer("brown beard", Red, Coord{0, 0}, 0); err == nil || !strings.Contains(err.Error(), "pieces") {
+		t.Errorf("NewPlayer with no pieces: got %v, want error about pieces", err)
+	}
+}
+
+func TestPlayerPlacePiece(t *testing.T) {
+	player, err := NewPlayer("brown beard", Red, Coord{0, 0}, 2)
+	if err != nil {
+		t.Fatalf("NewPlayer: got %v, want no error", err)
+	}
+
 	// Remove piece at invalid index
 	if err := player.placePiece(-1); err == nil || !strings.Contains(err.Error(), "out of range") {
 		t.Errorf("placePiece(-1): got %v, want index out of range error", err)
@@ -125,8 +149,7 @@ func TestPlayerPlacePiece(t *testing.T) {
 		t.Errorf("placePiece(2): got %v, want index out of range error", err)
 	}
 	// Remove piece at valid index
-	err := player.placePiece(0)
-	if err != nil {
+	if err := player.placePiece(0); err != nil {
 		t.Errorf("placePiece(0): got %v, want no error", err)
 	}
 	// Remove already removed piece

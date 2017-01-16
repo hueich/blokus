@@ -45,9 +45,32 @@ func NewGame(id GameID, size int, pieces []*Piece) (*Game, error) {
 	}, nil
 }
 
+func (g *Game) getNextFreeColor() (Color, error) {
+	allColors := make([]bool, int(colorEnd))
+	for _, p := range g.players {
+		if !p.color.IsColored() {
+			return 0, fmt.Errorf("Player %v has invalid color: %v", p.name, p.color)
+		}
+		allColors[int(p.color)] = true
+	}
+	for i := 1; i < int(colorEnd); i++ {
+		if !allColors[i] {
+			return Color(i), nil
+		}
+	}
+	return 0, fmt.Errorf("No more free colors")
+}
+
 func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 	if len(name) == 0 {
 		return fmt.Errorf("Player name cannot be empty")
+	}
+	if color == colorEmpty {
+		var err error
+		color, err = g.getNextFreeColor()
+		if err != nil {
+			return err
+		}
 	}
 	if !color.IsColored() {
 		return fmt.Errorf("Invalid color %v", color)
@@ -55,6 +78,7 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 	if g.board.isOutOfBounds(startPos) {
 		return fmt.Errorf("Starting position is out of bounds: %v", startPos)
 	}
+
 	for _, p := range g.players {
 		if p.name == name {
 			return fmt.Errorf("Player %v already in the game", name)
@@ -66,11 +90,9 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 			return fmt.Errorf("Starting position already occupied by player %v", p.name)
 		}
 	}
-	p := &Player{
-		name:         name,
-		color:        color,
-		startPos:     startPos,
-		placedPieces: make([]bool, len(g.pieces)),
+	p, err := NewPlayer(name, color, startPos, len(g.pieces))
+	if err != nil {
+		return fmt.Errorf("Error adding new player: %v", err)
 	}
 	g.players = append(g.players, p)
 	return nil

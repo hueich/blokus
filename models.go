@@ -57,6 +57,25 @@ type Player struct {
 	placedPieces []bool
 }
 
+func NewPlayer(name string, color Color, startPos Coord, numPieces int) (*Player, error) {
+	if len(name) == 0 {
+		return nil, fmt.Errorf("Player name cannot be empty")
+	}
+	if !color.IsColored() {
+		return nil, fmt.Errorf("Invalid player color: %v", color)
+	}
+	// Start position can be arbitrary, so should check at the Game level.
+	if numPieces <= 0 {
+		return nil, fmt.Errorf("Number of pieces for the player must be positive: %v", numPieces)
+	}
+	return &Player{
+		name:         name,
+		color:        color,
+		startPos:     startPos,
+		placedPieces: make([]bool, numPieces),
+	}, nil
+}
+
 func (p *Player) Color() Color {
 	return p.color
 }
