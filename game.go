@@ -122,7 +122,7 @@ func (g *Game) PlacePiece(player *Player, pieceIndex int, orient Orientation, lo
 	}
 	// Check if it's this player's turn.
 	if player != g.players[g.curPlayerIndex] {
-		return fmt.Errorf("Turn belongs to %v, not %v", g.players[g.curPlayerIndex].name, player.name)
+		return fmt.Errorf("Turn belongs to player %v, not player %v", g.players[g.curPlayerIndex].name, player.name)
 	}
 
 	if pieceIndex < 0 || pieceIndex >= len(g.pieces) {
