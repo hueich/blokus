@@ -185,6 +185,33 @@ func newGameWithTwoPlayersAndTwoPieces(t *testing.T, size int) *Game {
 	return g
 }
 
+func TestPassTurn(t *testing.T) {
+	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
+	if err := g.PassTurn(g.players[0]); err != nil {
+		t.Errorf("PassTurn(player0): got %v, want no error", err)
+	}
+	if got, want := len(g.moves), 1; got != want {
+		t.Fatalf("Num moves after PassTurn(): got %v, want %v", got, want)
+	}
+	if got := g.moves[0]; !got.isPass() {
+		t.Errorf("Moves[0]: got %v, want isPass()=true", got)
+	}
+}
+
+func TestPassTurnNilPlayer(t *testing.T) {
+	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
+	if err := g.PassTurn(nil); err == nil || !strings.Contains(err.Error(), "Invalid player") {
+		t.Errorf("PassTurn(nil): got %v, want error about invalid player", err)
+	}
+}
+
+func TestPassTurnWrongPlayerTurn(t *testing.T) {
+	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
+	if err := g.PassTurn(g.players[1]); err == nil || !strings.Contains(err.Error(), "Turn") {
+		t.Errorf("PassTurn(player1): got %v, want error about wrong turn", err)
+	}
+}
+
 func TestPlacePieceAlreadyPlaced(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 10)
 
@@ -243,6 +270,9 @@ func TestPlacePieceValid(t *testing.T) {
 	}
 	if *gotMove != *wantMove {
 		t.Errorf("Move info: got %v, want %v", *gotMove, *wantMove)
+	}
+	if got := gotMove.isPass(); got {
+		t.Errorf("Move.isPass(): got %v, want false", got)
 	}
 
 	// Should not advance turn
@@ -343,5 +373,37 @@ func TestAdvanceTurn(t *testing.T) {
 	}
 	if got, want := g.players[g.curPlayerIndex].name, "bar"; got != want {
 		t.Errorf("After AdvanceTurn(): got player %v, want player %v", got, want)
+	}
+}
+
+func TestIsGameEndNoPlayers(t *testing.T) {
+	g := newGameOrDie(t)
+	if got := g.isGameEnd(); got {
+		t.Errorf("IsGameEnd() with no players: got %v, want false", got)
+	}
+}
+
+func TestIsGameEnd(t *testing.T) {
+	g := newGameWithTwoPlayersAndTwoPieces(t, 5)
+	if got := g.isGameEnd(); got {
+		t.Errorf("IsGameEnd() with no moves: got %v, want false", got)
+	}
+	if err := g.PassTurn(g.players[0]); err != nil {
+		t.Fatalf("PassTurn(player0): got %v, want no error", err)
+	}
+	if err := g.AdvanceTurn(); err != nil {
+		t.Fatalf("AdvanceTurn(player0): got %v, want no error", err)
+	}
+	if got := g.isGameEnd(); got {
+		t.Errorf("IsGameEnd() with 1 pass: got %v, want false", got)
+	}
+	if err := g.PassTurn(g.players[1]); err != nil {
+		t.Fatalf("PassTurn(player1): got %v, want no error", err)
+	}
+	if err := g.AdvanceTurn(); err != nil {
+		t.Fatalf("AdvanceTurn(player1): got %v, want no error", err)
+	}
+	if got := g.isGameEnd(); !got {
+		t.Errorf("IsGameEnd() with 2 passes: got %v, want true", got)
 	}
 }

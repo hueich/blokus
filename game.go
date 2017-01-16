@@ -98,6 +98,22 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 	return nil
 }
 
+func (g *Game) PassTurn(player *Player) error {
+	if player == nil {
+		return fmt.Errorf("Invalid player")
+	}
+	// Check if it's this player's turn.
+	if player != g.players[g.curPlayerIndex] {
+		return fmt.Errorf("Turn belongs to player %v, not player %v", g.players[g.curPlayerIndex].name, player.name)
+	}
+	// Record the move.
+	g.moves = append(g.moves, &Move{
+		player:     player,
+		pieceIndex: -1,
+	})
+	return nil
+}
+
 // Place the piece on the board and record the move, unless there's an error.
 // This does not check for winner nor advance player turn.
 func (g *Game) PlacePiece(player *Player, pieceIndex int, orient Orientation, loc Coord) error {
@@ -212,4 +228,18 @@ func (g *Game) AdvanceTurn() error {
 	}
 	g.curPlayerIndex = (g.curPlayerIndex + 1) % len(g.players)
 	return nil
+}
+
+// Game ends when all players passed for a round.
+func (g *Game) isGameEnd() bool {
+	if len(g.moves) == 0 || len(g.moves) < len(g.players) {
+		return false
+	}
+	for _, m := range g.moves[len(g.moves)-len(g.players):] {
+		// TODO: Refine logic so players who finished early don't have to keep passing.
+		if !m.isPass() {
+			return false
+		}
+	}
+	return true
 }

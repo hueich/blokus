@@ -173,3 +173,7 @@ type Move struct {
 	// This is the coordinate where the (0,0) block of the piece is located.
 	loc Coord
 }
+
+func (m Move) isPass() bool {
+	return m.pieceIndex < 0
+}
