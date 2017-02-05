@@ -12,6 +12,10 @@ type Coord struct {
 	X, Y int
 }
 
+func (c Coord) String() string {
+	return fmt.Sprintf("(%d,%d)", c.X, c.Y)
+}
+
 // Color is an enum of available colors.
 type Color uint8
 
@@ -76,11 +80,15 @@ func NewPlayer(name string, color Color, startPos Coord, numPieces int) (*Player
 	}, nil
 }
 
+func (p *Player) Name() string {
+	return p.name
+}
+
 func (p *Player) Color() Color {
 	return p.color
 }
 
-func (p *Player) checkPiecePlaceability(index int) error {
+func (p *Player) CheckPiecePlaceability(index int) error {
 	if index < 0 || index >= len(p.placedPieces) {
 		return fmt.Errorf("Piece index out of range: %v", index)
 	}
@@ -91,7 +99,7 @@ func (p *Player) checkPiecePlaceability(index int) error {
 }
 
 func (p *Player) placePiece(index int) error {
-	if err := p.checkPiecePlaceability(index); err != nil {
+	if err := p.CheckPiecePlaceability(index); err != nil {
 		return err
 	}
 	p.placedPieces[index] = true
@@ -111,6 +119,10 @@ func NewBoard(size int) *Board {
 		b.grid[i] = make([]Color, size)
 	}
 	return b
+}
+
+func (b *Board) Grid() [][]Color {
+	return b.grid
 }
 
 func (b *Board) isOutOfBounds(c Coord) bool {

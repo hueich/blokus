@@ -45,6 +45,18 @@ func NewGame(id GameID, size int, pieces []*Piece) (*Game, error) {
 	}, nil
 }
 
+func (g *Game) Board() *Board {
+	return g.board
+}
+
+func (g *Game) Players() []*Player {
+	return g.players
+}
+
+func (g *Game) CurrentPlayer() *Player {
+	return g.players[g.curPlayerIndex]
+}
+
 func (g *Game) getNextFreeColor() (Color, error) {
 	allColors := make([]bool, int(colorEnd))
 	for _, p := range g.players {
@@ -128,7 +140,7 @@ func (g *Game) PlacePiece(player *Player, pieceIndex int, orient Orientation, lo
 	if pieceIndex < 0 || pieceIndex >= len(g.pieces) {
 		return fmt.Errorf("Piece index is out of range: %d", pieceIndex)
 	}
-	if err := player.checkPiecePlaceability(pieceIndex); err != nil {
+	if err := player.CheckPiecePlaceability(pieceIndex); err != nil {
 		return err
 	}
 
@@ -231,7 +243,7 @@ func (g *Game) AdvanceTurn() error {
 }
 
 // Game ends when all players passed for a round.
-func (g *Game) isGameEnd() bool {
+func (g *Game) IsGameEnd() bool {
 	if len(g.moves) == 0 || len(g.moves) < len(g.players) {
 		return false
 	}
