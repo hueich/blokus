@@ -378,14 +378,14 @@ func TestAdvanceTurn(t *testing.T) {
 
 func TestIsGameEndNoPlayers(t *testing.T) {
 	g := newGameOrDie(t)
-	if got := g.isGameEnd(); got {
+	if got := g.IsGameEnd(); got {
 		t.Errorf("IsGameEnd() with no players: got %v, want false", got)
 	}
 }
 
 func TestIsGameEnd(t *testing.T) {
 	g := newGameWithTwoPlayersAndTwoPieces(t, 5)
-	if got := g.isGameEnd(); got {
+	if got := g.IsGameEnd(); got {
 		t.Errorf("IsGameEnd() with no moves: got %v, want false", got)
 	}
 	if err := g.PassTurn(g.players[0]); err != nil {
@@ -394,7 +394,7 @@ func TestIsGameEnd(t *testing.T) {
 	if err := g.AdvanceTurn(); err != nil {
 		t.Fatalf("AdvanceTurn(player0): got %v, want no error", err)
 	}
-	if got := g.isGameEnd(); got {
+	if got := g.IsGameEnd(); got {
 		t.Errorf("IsGameEnd() with 1 pass: got %v, want false", got)
 	}
 	if err := g.PassTurn(g.players[1]); err != nil {
@@ -403,7 +403,7 @@ func TestIsGameEnd(t *testing.T) {
 	if err := g.AdvanceTurn(); err != nil {
 		t.Fatalf("AdvanceTurn(player1): got %v, want no error", err)
 	}
-	if got := g.isGameEnd(); !got {
+	if got := g.IsGameEnd(); !got {
 		t.Errorf("IsGameEnd() with 2 passes: got %v, want true", got)
 	}
 }
