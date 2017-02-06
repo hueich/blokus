@@ -5,9 +5,7 @@ import (
 )
 
 const (
-	// Default game board size.
-	DefaultBoardSize = 20
-	maxBoardSize     = 100
+	maxBoardSize = 100
 )
 
 var (

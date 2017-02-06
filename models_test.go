@@ -158,6 +158,51 @@ func TestPlayerPlacePiece(t *testing.T) {
 	}
 }
 
+func TestNewPieceNil(t *testing.T) {
+	_, err := NewPiece(nil)
+	if err == nil {
+		t.Error("NewPiece(nil): got no error, want error")
+	}
+}
+
+func TestNewPieceEmpty(t *testing.T) {
+	_, err := NewPiece([]Coord{})
+	if err == nil {
+		t.Error("NewPiece({}): got no error, want error")
+	}
+}
+
+func TestNewPiece(t *testing.T) {
+	blocks := []Coord{{0, 0}, {0, 1}}
+	p, err := NewPiece(blocks)
+	if err != nil {
+		t.Fatalf("NewPiece(): got %v, want no error", err)
+	}
+	if p == nil {
+		t.Fatal("Piece: got nil, want not nil")
+	}
+	if !reflect.DeepEqual(p.blocks, blocks) {
+		t.Errorf("Piece blocks: got %v, want %v", p.blocks, blocks)
+	}
+	if len(p.corners) == 0 {
+		t.Error("Piece corners: got no corners, want at least one corner")
+	}
+}
+
+func TestNewPieceOrNilReturnNil(t *testing.T) {
+	p := NewPieceOrNil(nil)
+	if p != nil {
+		t.Errorf("NewPieceOrNil(nil): got %v, want nil", p)
+	}
+}
+
+func TestNewPieceOrNil(t *testing.T) {
+	p := NewPieceOrNil([]Coord{{0, 0}, {0, 1}})
+	if p == nil {
+		t.Error("NewPieceOrNil(): got nil, want not nil")
+	}
+}
+
 func coordSliceToMap(s []Coord) map[Coord]bool {
 	m := map[Coord]bool{}
 	for _, c := range s {
