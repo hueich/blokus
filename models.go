@@ -150,6 +150,14 @@ func NewPiece(blocks []Coord) (*Piece, error) {
 	return p, nil
 }
 
+func NewPieceOrNil(blocks []Coord) *Piece {
+	p, err := NewPiece(blocks)
+	if err != nil {
+		return nil
+	}
+	return p
+}
+
 func getCorners(blocks []Coord) []Coord {
 	corners := map[Coord]bool{}
 	// Add corners of all blocks
