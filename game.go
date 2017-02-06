@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	maxBoardSize     = 100
+	maxBoardSize = 100
 )
 
 var (
