@@ -12,29 +12,31 @@ type BlokusService struct {
 }
 
 func New(prefix string) *BlokusService {
-	return &BlokusService{router: newRouter(prefix)}
+	s := &BlokusService{}
+	s.initRouter(prefix)
+	return s
 }
 
-func newRouter(prefix string) *mux.Router {
+func (s *BlokusService) initRouter(prefix string) {
 	r := mux.NewRouter()
-	s := r.PathPrefix(path.Join(prefix, "/games")).Subrouter()
+	sr := r.PathPrefix(path.Join(prefix, "/games")).Subrouter()
 
 	// Gets a webpage with a listing of games.
-	s.HandleFunc("", getGamesHandler).Methods("GET")
+	sr.HandleFunc("", s.getGamesHandler).Methods("GET")
 	// Creates a game.
-	s.HandleFunc("", newGameHandler).Methods("POST")
+	sr.HandleFunc("", s.newGameHandler).Methods("POST")
 
-	g := s.PathPrefix("/{gid:[0-9]+}").Subrouter()
+	g := sr.PathPrefix("/{gid:[0-9]+}").Subrouter()
 	// Gets a webpage showing the specified game.
-	g.HandleFunc("", getGameHandler).Methods("GET")
+	g.HandleFunc("", s.getGameHandler).Methods("GET")
 	// Gets various game state data.
-	g.HandleFunc("/state", getGameStateHandler).Methods("GET")
+	g.HandleFunc("/state", s.getGameStateHandler).Methods("GET")
 	// Add a player.
-	g.HandleFunc("/players", newPlayerHandler).Methods("POST")
+	g.HandleFunc("/players", s.newPlayerHandler).Methods("POST")
 	// Make a move in the game.
-	g.HandleFunc("/moves", newMoveHandler).Methods("POST")
+	g.HandleFunc("/moves", s.newMoveHandler).Methods("POST")
 
-	return r
+	s.router = r
 }
 
 func (s *BlokusService) Router() http.Handler {
