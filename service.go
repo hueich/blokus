@@ -7,7 +7,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func NewRouter(prefix string) http.Handler {
+type BlokusService struct {
+	router *mux.Router
+}
+
+func New(prefix string) *BlokusService {
+	return &BlokusService{router: newRouter(prefix)}
+}
+
+func newRouter(prefix string) *mux.Router {
 	r := mux.NewRouter()
 	s := r.PathPrefix(path.Join(prefix, "/games")).Subrouter()
 
@@ -27,4 +35,8 @@ func NewRouter(prefix string) http.Handler {
 	g.HandleFunc("/moves", newMoveHandler).Methods("POST")
 
 	return r
+}
+
+func (s *BlokusService) Router() http.Handler {
+	return s.router
 }

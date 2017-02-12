@@ -4,14 +4,14 @@ import (
 	"testing"
 )
 
-func TestNewRouterNoPrefix(t *testing.T) {
-	if r := NewRouter(""); r == nil {
-		t.Error("NewRouter(''): got nil, want router")
+func TestNewServiceNoPrefix(t *testing.T) {
+	if s := New(""); s == nil {
+		t.Error("New(''): got nil, want service")
 	}
 }
 
-func TestNewRouterWithPrefix(t *testing.T) {
-	if r := NewRouter("/foo"); r == nil {
-		t.Error("NewRouter('/foo'): got nil, want router")
+func TestNewServiceWithPrefix(t *testing.T) {
+	if s := New("/foo"); s == nil {
+		t.Error("New('/foo'): got nil, want service")
 	}
 }
