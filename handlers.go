@@ -2,19 +2,15 @@ package blokusService
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"path"
 	"strconv"
 	"strings"
-	// "log"
-	"path"
 
+	"cloud.google.com/go/datastore"
 	"github.com/gorilla/mux"
 	"github.com/hueich/blokus"
-)
-
-var (
-	// Our poor man's database. At least it'll be fast!
-	gamesDB = make(map[blokus.GameID]*blokus.Game)
 )
 
 func (s *BlokusService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
@@ -24,36 +20,44 @@ func (s *BlokusService) getGamesHandler(w http.ResponseWriter, r *http.Request) 
 					  <input type="text" name="gid"/>
 					  <button type="submit">Create Game</button>
 					</form>`))
-	w.Write([]byte(fmt.Sprintf("<div>There are %d games:</div>\n<ul>\n", len(gamesDB))))
-	for k := range gamesDB {
-		w.Write([]byte(fmt.Sprintf("<li><a href=\"games/%v\">%v</a></li>", k, k)))
+
+	q := datastore.NewQuery("Game")
+	q = q.KeysOnly()
+	keys, err := s.client.GetAll(r.Context(), q, nil)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Could not get list of games: %v\n", err)
+		return
+	}
+	w.Write([]byte(fmt.Sprintf("<div>There are %d games:</div>\n<ul>\n", len(keys))))
+	for _, k := range keys {
+		w.Write([]byte(fmt.Sprintf("<li><a href=\"games/%v\">%v</a></li>", k.ID, k.ID)))
 	}
 	w.Write([]byte("</ul></body></html>"))
 }
 
 func (s *BlokusService) newGameHandler(w http.ResponseWriter, r *http.Request) {
-	gidStr := r.FormValue("gid")
-	gidInt, err := strconv.ParseInt(gidStr, 10, 64)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Invalid game ID"))
-		return
-	}
-	gid := blokus.GameID(gidInt)
-	if _, exists := gamesDB[gid]; exists {
-		w.WriteHeader(http.StatusConflict)
-		w.Write([]byte("Game with ID already exists"))
-		return
-	}
-	// g := blokus.NewGame()
-	gamesDB[gid] = nil
+	// TODO: Error checking, player validation, etc.
 
+	g, err := blokus.NewGame(blokus.GameID(0), blokus.DefaultBoardSize, blokus.DefaultPieces())
+	log.Printf("Created new game in memory: %v\n", g)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	gameKey := datastore.IncompleteKey("Game", nil)
+	gameKey, err = s.client.Put(r.Context(), gameKey, g)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Could not create new game: %v", err)
+		return
+	}
 	w.WriteHeader(http.StatusCreated)
 
 	if strings.Contains(r.Header.Get("Accept"), "text/html") {
 		w.Header().Set("Content-Type", "text/html;charset=utf-8")
 		// TODO: May need to escape URL path.
-		p := path.Join(r.URL.Path, strconv.FormatInt(gidInt, 10))
+		p := path.Join(r.URL.Path, strconv.FormatInt(gameKey.ID, 10))
 		w.Write([]byte(fmt.Sprintf(`<html><head><meta http-equiv="refresh" content="0;url='%s'"/></head></html>`, p)))
 	}
 }
@@ -66,13 +70,14 @@ func (s *BlokusService) getGameHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Invalid game ID"))
 		return
 	}
-	g, ok := gamesDB[blokus.GameID(gid)]
-	if !ok {
+	g := &blokus.Game{}
+	gameKey := datastore.IDKey("Game", gid, nil)
+	if err := s.client.Get(r.Context(), gameKey, g); err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("No game found"))
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("Got game: %v", g)))
+	w.Write([]byte(fmt.Sprintf("Got game: %v", *g)))
 }
 
 func (s *BlokusService) getGameStateHandler(w http.ResponseWriter, r *http.Request) {
