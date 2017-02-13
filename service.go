@@ -20,6 +20,13 @@ func New(prefix string) *BlokusService {
 	return s
 }
 
+func (s *BlokusService) Close() {
+	if s.client != nil {
+		s.client.Close()
+		s.client = nil
+	}
+}
+
 func (s *BlokusService) Router() http.Handler {
 	return s.router
 }
@@ -46,6 +53,9 @@ func (s *BlokusService) initRouter(prefix string) {
 	s.router = r
 }
 
+// InitClient initializes the Google Datastore client.
+// Credentials should be set via the environment variable: GOOGLE_APPLICATION_CREDENTIALS
+// Project ID can alternatively be set via the environment variable: DATASTORE_PROJECT_ID
 func (s *BlokusService) InitClient(ctx context.Context, projectID string) error {
 	c, err := datastore.NewClient(ctx, projectID)
 	if err != nil {
@@ -53,4 +63,8 @@ func (s *BlokusService) InitClient(ctx context.Context, projectID string) error 
 	}
 	s.client = c
 	return nil
+}
+
+func (s *BlokusService) numGames(ctx context.Context) (int, error) {
+	return s.client.Count(ctx, datastore.NewQuery("Game"))
 }
