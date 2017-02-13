@@ -1,20 +1,27 @@
 package blokusService
 
 import (
+	"context"
 	"net/http"
 	"path"
 
+	"cloud.google.com/go/datastore"
 	"github.com/gorilla/mux"
 )
 
 type BlokusService struct {
 	router *mux.Router
+	client *datastore.Client
 }
 
 func New(prefix string) *BlokusService {
 	s := &BlokusService{}
 	s.initRouter(prefix)
 	return s
+}
+
+func (s *BlokusService) Router() http.Handler {
+	return s.router
 }
 
 func (s *BlokusService) initRouter(prefix string) {
@@ -39,6 +46,11 @@ func (s *BlokusService) initRouter(prefix string) {
 	s.router = r
 }
 
-func (s *BlokusService) Router() http.Handler {
-	return s.router
+func (s *BlokusService) InitClient(ctx context.Context, projectID string) error {
+	c, err := datastore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	s.client = c
+	return nil
 }

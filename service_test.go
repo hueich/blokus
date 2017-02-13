@@ -6,12 +6,12 @@ import (
 
 func TestNewServiceNoPrefix(t *testing.T) {
 	if s := New(""); s == nil {
-		t.Error("New(''): got nil, want service")
+		t.Error("New(''): got service==nil, want service")
 	}
 }
 
 func TestNewServiceWithPrefix(t *testing.T) {
 	if s := New("/foo"); s == nil {
-		t.Error("New('/foo'): got nil, want service")
+		t.Error("New('/foo'): got service==nil, want service")
 	}
 }
