@@ -7,6 +7,7 @@ import (
 
 	"cloud.google.com/go/datastore"
 	"github.com/gorilla/mux"
+	"google.golang.org/api/option"
 )
 
 type BlokusService struct {
@@ -54,10 +55,14 @@ func (s *BlokusService) initRouter(prefix string) {
 }
 
 // InitClient initializes the Google Datastore client.
-// Credentials should be set via the environment variable: GOOGLE_APPLICATION_CREDENTIALS
-// Project ID can alternatively be set via the environment variable: DATASTORE_PROJECT_ID
-func (s *BlokusService) InitClient(ctx context.Context, projectID string) error {
-	c, err := datastore.NewClient(ctx, projectID)
+// For both projectID and credsFile, they can alternatively be provided through environment variables
+// DATASTORE_PROJECT_ID and GOOGLE_APPLICATION_CREDENTIALS, respectively, in which case the cooresponding params can be left empty.
+func (s *BlokusService) InitClient(ctx context.Context, projectID, credsFile string) error {
+	opts := []option.ClientOption{}
+	if credsFile != "" {
+		opts = append(opts, option.WithServiceAccountFile(credsFile))
+	}
+	c, err := datastore.NewClient(ctx, projectID, opts...)
 	if err != nil {
 		return err
 	}

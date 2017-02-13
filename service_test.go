@@ -22,7 +22,7 @@ func TestEndToEnd(t *testing.T) {
 	if s == nil {
 		t.Fatal("New('/foo'): got service==nil, want service")
 	}
-	if err := s.InitClient(context.Background(), ""); err != nil {
+	if err := s.InitClient(context.Background(), "", ""); err != nil {
 		t.Fatalf("InitClient(''): got %v, want no error", err)
 	}
 	defer s.Close()
@@ -31,5 +31,5 @@ func TestEndToEnd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("numGames(): got %v, want no error", err)
 	}
-	t.Errorf("Got numGames(): %v", count)
+	t.Logf("Got numGames(): %v", count)
 }
