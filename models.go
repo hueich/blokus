@@ -130,7 +130,6 @@ func NewPiece(blocks []Coord) (*Piece, error) {
 	p := &Piece{
 		// Make a copy, in case the same block slice is used to make other pieces.
 		Blocks:  append([]Coord(nil), blocks...),
-		corners: getCorners(blocks),
 	}
 	return p, nil
 }
@@ -141,6 +140,13 @@ func NewPieceOrNil(blocks []Coord) *Piece {
 		return nil
 	}
 	return p
+}
+
+func (p *Piece) Corners() []Coord {
+	if len(p.corners) == 0 {
+		p.corners = getCorners(p.Blocks)
+	}
+	return p.corners
 }
 
 func getCorners(blocks []Coord) []Coord {

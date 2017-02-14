@@ -184,8 +184,8 @@ func TestNewPiece(t *testing.T) {
 	if !reflect.DeepEqual(p.Blocks, blocks) {
 		t.Errorf("Piece blocks: got %v, want %v", p.Blocks, blocks)
 	}
-	if len(p.corners) == 0 {
-		t.Error("Piece corners: got no corners, want at least one corner")
+	if len(p.Corners()) == 0 {
+		t.Error("Piece Corners(): got no corners, want at least one corner")
 	}
 }
 

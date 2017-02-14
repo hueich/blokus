@@ -201,7 +201,7 @@ func (g *Game) checkPiecePlacement(player *Player, piece *Piece, loc Coord) erro
 	}
 
 	hasValidCorner := false
-	for _, c := range piece.corners {
+	for _, c := range piece.Corners() {
 		// Change from relative to absolute coordinate.
 		c = Coord{c.X + loc.X, c.Y + loc.Y}
 
