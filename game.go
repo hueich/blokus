@@ -18,14 +18,14 @@ var (
 )
 
 type Game struct {
-	players []*Player
-	board   *Board
+	Players []*Player
+	Board   *Board
 	// Set of pieces every player starts with.
-	pieces []*Piece
+	Pieces []*Piece
 	// Index of the player whose turn it is.
-	curPlayerIndex int
+	CurPlayerIndex int
 	// Moves that have been played.
-	moves []*Move
+	Moves []*Move
 }
 
 func NewGame(size int, pieces []*Piece) (*Game, error) {
@@ -36,26 +36,18 @@ func NewGame(size int, pieces []*Piece) (*Game, error) {
 		return nil, fmt.Errorf("Cannot create game with no pieces")
 	}
 	return &Game{
-		board:  NewBoard(size),
-		pieces: pieces,
+		Board:  NewBoard(size),
+		Pieces: pieces,
 	}, nil
 }
 
-func (g *Game) Board() *Board {
-	return g.board
-}
-
-func (g *Game) Players() []*Player {
-	return g.players
-}
-
 func (g *Game) CurrentPlayer() *Player {
-	return g.players[g.curPlayerIndex]
+	return g.Players[g.CurPlayerIndex]
 }
 
-func (g *Game) getNextFreeColor() (Color, error) {
+func (g *Game) GetNextFreeColor() (Color, error) {
 	allColors := make([]bool, int(colorEnd))
-	for _, p := range g.players {
+	for _, p := range g.Players {
 		if !p.color.IsColored() {
 			return 0, fmt.Errorf("Player %v has invalid color: %v", p.name, p.color)
 		}
@@ -75,7 +67,7 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 	}
 	if color == colorEmpty {
 		var err error
-		color, err = g.getNextFreeColor()
+		color, err = g.GetNextFreeColor()
 		if err != nil {
 			return err
 		}
@@ -83,11 +75,11 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 	if !color.IsColored() {
 		return fmt.Errorf("Invalid color %v", color)
 	}
-	if g.board.isOutOfBounds(startPos) {
+	if g.Board.isOutOfBounds(startPos) {
 		return fmt.Errorf("Starting position is out of bounds: %v", startPos)
 	}
 
-	for _, p := range g.players {
+	for _, p := range g.Players {
 		if p.name == name {
 			return fmt.Errorf("Player %v already in the game", name)
 		}
@@ -98,11 +90,11 @@ func (g *Game) AddPlayer(name string, color Color, startPos Coord) error {
 			return fmt.Errorf("Starting position already occupied by player %v", p.name)
 		}
 	}
-	p, err := NewPlayer(name, color, startPos, len(g.pieces))
+	p, err := NewPlayer(name, color, startPos, len(g.Pieces))
 	if err != nil {
 		return fmt.Errorf("Error adding new player: %v", err)
 	}
-	g.players = append(g.players, p)
+	g.Players = append(g.Players, p)
 	return nil
 }
 
@@ -111,11 +103,11 @@ func (g *Game) PassTurn(player *Player) error {
 		return fmt.Errorf("Invalid player")
 	}
 	// Check if it's this player's turn.
-	if player != g.players[g.curPlayerIndex] {
-		return fmt.Errorf("Turn belongs to player %v, not player %v", g.players[g.curPlayerIndex].name, player.name)
+	if player != g.Players[g.CurPlayerIndex] {
+		return fmt.Errorf("Turn belongs to player %v, not player %v", g.Players[g.CurPlayerIndex].name, player.name)
 	}
 	// Record the move.
-	g.moves = append(g.moves, &Move{
+	g.Moves = append(g.Moves, &Move{
 		player:     player,
 		pieceIndex: -1,
 	})
@@ -129,18 +121,18 @@ func (g *Game) PlacePiece(player *Player, pieceIndex int, orient Orientation, lo
 		return fmt.Errorf("Invalid player")
 	}
 	// Check if it's this player's turn.
-	if player != g.players[g.curPlayerIndex] {
-		return fmt.Errorf("Turn belongs to player %v, not player %v", g.players[g.curPlayerIndex].name, player.name)
+	if player != g.Players[g.CurPlayerIndex] {
+		return fmt.Errorf("Turn belongs to player %v, not player %v", g.Players[g.CurPlayerIndex].name, player.name)
 	}
 
-	if pieceIndex < 0 || pieceIndex >= len(g.pieces) {
+	if pieceIndex < 0 || pieceIndex >= len(g.Pieces) {
 		return fmt.Errorf("Piece index is out of range: %d", pieceIndex)
 	}
 	if err := player.CheckPiecePlaceability(pieceIndex); err != nil {
 		return err
 	}
 
-	piece := g.pieces[pieceIndex]
+	piece := g.Pieces[pieceIndex]
 	if piece == nil {
 		return fmt.Errorf("Piece at index %d is inexplicably nil", pieceIndex)
 	}
@@ -158,11 +150,11 @@ func (g *Game) PlacePiece(player *Player, pieceIndex int, orient Orientation, lo
 		return err
 	}
 	for _, b := range orientedPiece.blocks {
-		g.board.grid[loc.X+b.X][loc.Y+b.Y] = player.color
+		g.Board.grid[loc.X+b.X][loc.Y+b.Y] = player.color
 	}
 
 	// Record the move.
-	g.moves = append(g.moves, &Move{
+	g.Moves = append(g.Moves, &Move{
 		player:     player,
 		pieceIndex: pieceIndex,
 		orient:     orient,
@@ -180,20 +172,20 @@ func (g *Game) checkPiecePlacement(player *Player, piece *Piece, loc Coord) erro
 		// Change from relative to absolute coordinate.
 		b = Coord{b.X + loc.X, b.Y + loc.Y}
 		// Check that every block is inside the board
-		if g.board.isOutOfBounds(b) {
+		if g.Board.isOutOfBounds(b) {
 			return fmt.Errorf("Piece placement out of bounds")
 		}
 		// Check that every block is on an empty space
-		if g.board.grid[b.X][b.Y].IsColored() {
-			return fmt.Errorf("Cell (%v,%v) is occupied by color %v", b.X, b.Y, g.board.grid[b.X][b.Y])
+		if g.Board.grid[b.X][b.Y].IsColored() {
+			return fmt.Errorf("Cell (%v,%v) is occupied by color %v", b.X, b.Y, g.Board.grid[b.X][b.Y])
 		}
 		// Check that every block is not next to a piece of same color
 		for _, n := range neighbors {
 			n = Coord{b.X + n.X, b.Y + n.Y}
-			if g.board.isOutOfBounds(n) {
+			if g.Board.isOutOfBounds(n) {
 				continue
 			}
-			if g.board.grid[n.X][n.Y] == player.color {
+			if g.Board.grid[n.X][n.Y] == player.color {
 				return fmt.Errorf("Piece is next to another %v piece", player.color)
 			}
 		}
@@ -213,11 +205,11 @@ func (g *Game) checkPiecePlacement(player *Player, piece *Piece, loc Coord) erro
 		// Change from relative to absolute coordinate.
 		c = Coord{c.X + loc.X, c.Y + loc.Y}
 
-		if g.board.isOutOfBounds(c) {
+		if g.Board.isOutOfBounds(c) {
 			continue
 		}
 		// Check that at least one corner is touching a block of same color.
-		if g.board.grid[c.X][c.Y] == player.color {
+		if g.Board.grid[c.X][c.Y] == player.color {
 			hasValidCorner = true
 			break
 		}
@@ -231,19 +223,19 @@ func (g *Game) checkPiecePlacement(player *Player, piece *Piece, loc Coord) erro
 
 // Advances the game turn to the next player.
 func (g *Game) AdvanceTurn() error {
-	if len(g.players) == 0 {
+	if len(g.Players) == 0 {
 		return fmt.Errorf("Cannot advance turn with no players")
 	}
-	g.curPlayerIndex = (g.curPlayerIndex + 1) % len(g.players)
+	g.CurPlayerIndex = (g.CurPlayerIndex + 1) % len(g.Players)
 	return nil
 }
 
 // Game ends when all players passed for a round.
 func (g *Game) IsGameEnd() bool {
-	if len(g.moves) == 0 || len(g.moves) < len(g.players) {
+	if len(g.Moves) == 0 || len(g.Moves) < len(g.Players) {
 		return false
 	}
-	for _, m := range g.moves[len(g.moves)-len(g.players):] {
+	for _, m := range g.Moves[len(g.Moves)-len(g.Players):] {
 		// TODO: Refine logic so players who finished early don't have to keep passing.
 		if !m.isPass() {
 			return false
