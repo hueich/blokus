@@ -82,8 +82,8 @@ func TestBoardCoordsWithinBounds(t *testing.T) {
 	b := NewBoard(10)
 	for _, c := range coords {
 		t.Run(fmt.Sprintf("Coord(%v)", c), func(t *testing.T) {
-			if got, want := b.isOutOfBounds(c), false; got != want {
-				t.Errorf("Board.isOutOfBounds(%v): got %v, want %v", c, got, want)
+			if got, want := b.IsOutOfBounds(c), false; got != want {
+				t.Errorf("Board.IsOutOfBounds(%v): got %v, want %v", c, got, want)
 			}
 		})
 	}
@@ -100,8 +100,8 @@ func TestBoardCoordsOutOfBounds(t *testing.T) {
 	b := NewBoard(10)
 	for _, c := range coords {
 		t.Run(fmt.Sprintf("Coord(%v)", c), func(t *testing.T) {
-			if got, want := b.isOutOfBounds(c), true; got != want {
-				t.Errorf("Board.isOutOfBounds(%v): got %v, want %v", c, got, want)
+			if got, want := b.IsOutOfBounds(c), true; got != want {
+				t.Errorf("Board.IsOutOfBounds(%v): got %v, want %v", c, got, want)
 			}
 		})
 	}
@@ -181,8 +181,8 @@ func TestNewPiece(t *testing.T) {
 	if p == nil {
 		t.Fatal("Piece: got nil, want not nil")
 	}
-	if !reflect.DeepEqual(p.blocks, blocks) {
-		t.Errorf("Piece blocks: got %v, want %v", p.blocks, blocks)
+	if !reflect.DeepEqual(p.Blocks, blocks) {
+		t.Errorf("Piece blocks: got %v, want %v", p.Blocks, blocks)
 	}
 	if len(p.corners) == 0 {
 		t.Error("Piece corners: got no corners, want at least one corner")
