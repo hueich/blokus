@@ -35,8 +35,12 @@ func NewGame(size int, pieces []*Piece) (*Game, error) {
 	if len(pieces) == 0 {
 		return nil, fmt.Errorf("Cannot create game with no pieces")
 	}
+	b, err := NewBoard(size)
+	if err != nil {
+		return nil, fmt.Errorf("Could not create game board: %v", err)
+	}
 	return &Game{
-		Board:  NewBoard(size),
+		Board:  b,
 		Pieces: pieces,
 	}, nil
 }
@@ -150,7 +154,7 @@ func (g *Game) PlacePiece(player *Player, pieceIndex int, orient Orientation, lo
 		return err
 	}
 	for _, b := range orientedPiece.Blocks {
-		g.Board.Grid[loc.X+b.X][loc.Y+b.Y] = player.Color
+		g.Board.SetCell(Coord{loc.X + b.X, loc.Y + b.Y}, player.Color)
 	}
 
 	// Record the move.
@@ -176,8 +180,8 @@ func (g *Game) checkPiecePlacement(player *Player, piece *Piece, loc Coord) erro
 			return fmt.Errorf("Piece placement out of bounds")
 		}
 		// Check that every block is on an empty space
-		if g.Board.Grid[b.X][b.Y].IsColored() {
-			return fmt.Errorf("Cell (%v,%v) is occupied by color %v", b.X, b.Y, g.Board.Grid[b.X][b.Y])
+		if g.Board.Cell(b).IsColored() {
+			return fmt.Errorf("Cell (%v,%v) is occupied by color %v", b.X, b.Y, g.Board.Cell(b))
 		}
 		// Check that every block is not next to a piece of same color
 		for _, n := range neighbors {
@@ -185,7 +189,7 @@ func (g *Game) checkPiecePlacement(player *Player, piece *Piece, loc Coord) erro
 			if g.Board.IsOutOfBounds(n) {
 				continue
 			}
-			if g.Board.Grid[n.X][n.Y] == player.Color {
+			if g.Board.Cell(n) == player.Color {
 				return fmt.Errorf("Piece is next to another %v piece", player.Color)
 			}
 		}
@@ -209,7 +213,7 @@ func (g *Game) checkPiecePlacement(player *Player, piece *Piece, loc Coord) erro
 			continue
 		}
 		// Check that at least one corner is touching a block of same color.
-		if g.Board.Grid[c.X][c.Y] == player.Color {
+		if g.Board.Cell(c) == player.Color {
 			hasValidCorner = true
 			break
 		}

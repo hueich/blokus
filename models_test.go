@@ -79,7 +79,10 @@ func TestBoardCoordsWithinBounds(t *testing.T) {
 		{9, 9},
 		{4, 5},
 	}
-	b := NewBoard(10)
+	b, err := NewBoard(10)
+	if err != nil {
+		t.Fatalf("NewBoard(): got error %v, want no error", err)
+	}
 	for _, c := range coords {
 		t.Run(fmt.Sprintf("Coord(%v)", c), func(t *testing.T) {
 			if got, want := b.IsOutOfBounds(c), false; got != want {
@@ -97,7 +100,10 @@ func TestBoardCoordsOutOfBounds(t *testing.T) {
 		{10, 0},
 		{100, 100},
 	}
-	b := NewBoard(10)
+	b, err := NewBoard(10)
+	if err != nil {
+		t.Fatalf("NewBoard(): got error %v, want no error", err)
+	}
 	for _, c := range coords {
 		t.Run(fmt.Sprintf("Coord(%v)", c), func(t *testing.T) {
 			if got, want := b.IsOutOfBounds(c), true; got != want {

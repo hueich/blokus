@@ -97,21 +97,45 @@ func (p *Player) placePiece(index int) error {
 
 // Board represents the game board.
 type Board struct {
-	Grid [][]Color
+	Height, Width int
+	Grid          []Color
 }
 
-func NewBoard(size int) *Board {
+func NewBoard(size int) (*Board, error) {
+	return NewRectBoard(size, size)
+}
+
+func NewRectBoard(height, width int) (*Board, error) {
+	if height <= 0 {
+		return nil, fmt.Errorf("Board height must be positive, gave %v", height)
+	}
+	if width <= 0 {
+		return nil, fmt.Errorf("Board width must be positive, gave %v", width)
+	}
 	b := &Board{
-		Grid: make([][]Color, size),
+		Height: height,
+		Width:  width,
+		Grid:   make([]Color, height*width),
 	}
-	for i := range b.Grid {
-		b.Grid[i] = make([]Color, size)
+	return b, nil
+}
+
+func (b *Board) Cell(c Coord) Color {
+	if b.IsOutOfBounds(c) {
+		return colorEmpty
 	}
-	return b
+	return b.Grid[c.X*b.Width+c.Y]
+}
+
+func (b *Board) SetCell(coord Coord, color Color) {
+	if b.IsOutOfBounds(coord) {
+		return
+	}
+	b.Grid[coord.X*b.Width+coord.Y] = color
 }
 
 func (b *Board) IsOutOfBounds(c Coord) bool {
-	return c.X < 0 || c.Y < 0 || c.X >= len(b.Grid) || c.Y >= len(b.Grid[0])
+	return c.X < 0 || c.Y < 0 || c.X >= b.Height || c.Y >= b.Width
 }
 
 // Piece represents a puzzle piece, made up of one or more square blocks.
@@ -129,7 +153,7 @@ func NewPiece(blocks []Coord) (*Piece, error) {
 	}
 	p := &Piece{
 		// Make a copy, in case the same block slice is used to make other pieces.
-		Blocks:  append([]Coord(nil), blocks...),
+		Blocks: append([]Coord(nil), blocks...),
 	}
 	return p, nil
 }
