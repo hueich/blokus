@@ -53,12 +53,12 @@ func (c Color) String() string {
 
 type Player struct {
 	// Unique name of the player.
-	name  string
-	color Color
+	Name  string
+	Color Color
 	// The position the player starts from, e.g. [0,0], or [0,19] for a size 20 board.
-	startPos Coord
+	StartPos Coord
 	// True at an index means the corresponding piece has been placed on the board.
-	placedPieces []bool
+	PlacedPieces []bool
 }
 
 func NewPlayer(name string, color Color, startPos Coord, numPieces int) (*Player, error) {
@@ -73,26 +73,18 @@ func NewPlayer(name string, color Color, startPos Coord, numPieces int) (*Player
 		return nil, fmt.Errorf("Number of pieces for the player must be positive: %v", numPieces)
 	}
 	return &Player{
-		name:         name,
-		color:        color,
-		startPos:     startPos,
-		placedPieces: make([]bool, numPieces),
+		Name:         name,
+		Color:        color,
+		StartPos:     startPos,
+		PlacedPieces: make([]bool, numPieces),
 	}, nil
 }
 
-func (p *Player) Name() string {
-	return p.name
-}
-
-func (p *Player) Color() Color {
-	return p.color
-}
-
 func (p *Player) CheckPiecePlaceability(index int) error {
-	if index < 0 || index >= len(p.placedPieces) {
+	if index < 0 || index >= len(p.PlacedPieces) {
 		return fmt.Errorf("Piece index out of range: %v", index)
 	}
-	if p.placedPieces[index] {
+	if p.PlacedPieces[index] {
 		return fmt.Errorf("Piece at index %d is already placed", index)
 	}
 	return nil
@@ -102,7 +94,7 @@ func (p *Player) placePiece(index int) error {
 	if err := p.CheckPiecePlaceability(index); err != nil {
 		return err
 	}
-	p.placedPieces[index] = true
+	p.PlacedPieces[index] = true
 	return nil
 }
 
