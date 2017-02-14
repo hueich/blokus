@@ -4,6 +4,9 @@ import (
 	"context"
 )
 
+// GameID is the ID of a game.
+type GameID int64
+
 type GameOptions struct {
 	// Description is an optional description of the game.
 	Description string
