@@ -18,7 +18,6 @@ var (
 )
 
 type Game struct {
-	id      GameID
 	players []*Player
 	board   *Board
 	// Set of pieces every player starts with.
@@ -29,7 +28,7 @@ type Game struct {
 	moves []*Move
 }
 
-func NewGame(id GameID, size int, pieces []*Piece) (*Game, error) {
+func NewGame(size int, pieces []*Piece) (*Game, error) {
 	if size <= 0 || size > maxBoardSize {
 		return nil, fmt.Errorf("Board size must be between 1 and %v. Provided: %v", maxBoardSize, size)
 	}
@@ -37,7 +36,6 @@ func NewGame(id GameID, size int, pieces []*Piece) (*Game, error) {
 		return nil, fmt.Errorf("Cannot create game with no pieces")
 	}
 	return &Game{
-		id:     id,
 		board:  NewBoard(size),
 		pieces: pieces,
 	}, nil

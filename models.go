@@ -4,9 +4,6 @@ import (
 	"fmt"
 )
 
-// GameID is the ID of a created game.
-type GameID int64
-
 // Coord represents a 2D coordinate, where X increases downward and Y increases rightward.
 type Coord struct {
 	X, Y int
