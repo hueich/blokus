@@ -39,7 +39,7 @@ func (s *BlokusService) getGamesHandler(w http.ResponseWriter, r *http.Request) 
 func (s *BlokusService) newGameHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Error checking, player validation, etc.
 
-	g, err := blokus.NewGame(blokus.GameID(0), blokus.DefaultBoardSize, blokus.DefaultPieces())
+	g, err := blokus.NewGame(blokus.DefaultBoardSize, blokus.DefaultPieces())
 	log.Printf("Created new game in memory: %v\n", g)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
