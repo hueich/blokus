@@ -100,25 +100,21 @@ func (p *Player) placePiece(index int) error {
 
 // Board represents the game board.
 type Board struct {
-	grid [][]Color
+	Grid [][]Color
 }
 
 func NewBoard(size int) *Board {
 	b := &Board{
-		grid: make([][]Color, size),
+		Grid: make([][]Color, size),
 	}
-	for i := range b.grid {
-		b.grid[i] = make([]Color, size)
+	for i := range b.Grid {
+		b.Grid[i] = make([]Color, size)
 	}
 	return b
 }
 
-func (b *Board) Grid() [][]Color {
-	return b.grid
-}
-
-func (b *Board) isOutOfBounds(c Coord) bool {
-	return c.X < 0 || c.Y < 0 || c.X >= len(b.grid) || c.Y >= len(b.grid[0])
+func (b *Board) IsOutOfBounds(c Coord) bool {
+	return c.X < 0 || c.Y < 0 || c.X >= len(b.Grid) || c.Y >= len(b.Grid[0])
 }
 
 // Piece represents a puzzle piece, made up of one or more square blocks.
