@@ -172,16 +172,16 @@ func getCorners(blocks []Coord) []Coord {
 
 type Move struct {
 	// The player who made the move. Cannot be nil.
-	player *Player
+	Player *Player
 	// The index of the piece that was played. Negative if the turn was passed.
-	pieceIndex int
+	PieceIndex int
 	// Orientation of the piece when played.
-	orient Orientation
+	Orient Orientation
 	// Location on the board where the piece was played.
 	// This is the coordinate where the (0,0) block of the piece is located.
-	loc Coord
+	Loc Coord
 }
 
-func (m Move) isPass() bool {
-	return m.pieceIndex < 0
+func (m Move) IsPass() bool {
+	return m.PieceIndex < 0
 }
