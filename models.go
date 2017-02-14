@@ -121,7 +121,7 @@ func (b *Board) IsOutOfBounds(c Coord) bool {
 type Piece struct {
 	// The square blocks this piece consists of. First block must be at (0,0) with other blocks relative to it.
 	// The blocks are stored in their original coordinates with no rotation or flipping. Orientation is used to calcuate the actual coordinates.
-	blocks []Coord
+	Blocks []Coord
 	// The corner squares of this piece, which was calculated from blocks and cached here.
 	corners []Coord
 }
@@ -132,7 +132,7 @@ func NewPiece(blocks []Coord) (*Piece, error) {
 	}
 	p := &Piece{
 		// Make a copy, in case the same block slice is used to make other pieces.
-		blocks:  append([]Coord(nil), blocks...),
+		Blocks:  append([]Coord(nil), blocks...),
 		corners: getCorners(blocks),
 	}
 	return p, nil
