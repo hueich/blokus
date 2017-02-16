@@ -40,16 +40,16 @@ func (s *BlokusService) newGameHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Error checking, player validation, etc.
 
 	g, err := blokus.NewGame(blokus.DefaultBoardSize, blokus.DefaultPieces())
-	log.Printf("Created new game in memory: %v\n", g)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Could not instantiate new game: %v\n", err)
 		return
 	}
 	gameKey := datastore.IncompleteKey("Game", nil)
 	gameKey, err = s.client.Put(r.Context(), gameKey, g)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("Could not create new game: %v", err)
+		log.Printf("Could not put new game: %v\n", err)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
