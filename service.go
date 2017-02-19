@@ -48,10 +48,10 @@ func (s *BlokusService) addRoutes(r *mux.Router) {
 	g.HandleFunc("/moves", s.newMoveHandler).Methods("POST")
 }
 
-// InitClient initializes the Google Datastore client.
+// InitDBClient initializes the Google Datastore client.
 // For both projectID and credsFile, they can alternatively be provided through environment variables
 // DATASTORE_PROJECT_ID and GOOGLE_APPLICATION_CREDENTIALS, respectively, in which case the cooresponding params can be left empty.
-func (s *BlokusService) InitClient(ctx context.Context, projectID, credsFile string) error {
+func (s *BlokusService) InitDBClient(ctx context.Context, projectID, credsFile string) error {
 	// Close any existing client connections.
 	s.Close()
 
