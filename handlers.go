@@ -13,7 +13,7 @@ import (
 	"github.com/hueich/blokus"
 )
 
-func (s *BlokusService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
+func (s *APIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html;charset=utf-8")
 	w.Write([]byte("<html><head></head><body>\n"))
 	w.Write([]byte(`<form name="myform" method="POST">
@@ -36,7 +36,7 @@ func (s *BlokusService) getGamesHandler(w http.ResponseWriter, r *http.Request) 
 	w.Write([]byte("</ul></body></html>"))
 }
 
-func (s *BlokusService) newGameHandler(w http.ResponseWriter, r *http.Request) {
+func (s *APIService) newGameHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Error checking, player validation, etc.
 
 	g, err := blokus.NewGame(blokus.DefaultBoardSize, blokus.DefaultPieces())
@@ -62,7 +62,7 @@ func (s *BlokusService) newGameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *BlokusService) getGameHandler(w http.ResponseWriter, r *http.Request) {
+func (s *APIService) getGameHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	gid, err := strconv.ParseInt(vars["gid"], 10, 64)
 	if err != nil {
@@ -80,14 +80,14 @@ func (s *BlokusService) getGameHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("Got game: %v", *g)))
 }
 
-func (s *BlokusService) getGameStateHandler(w http.ResponseWriter, r *http.Request) {
+func (s *APIService) getGameStateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Handled by getGameStateHandler()"))
 }
 
-func (s *BlokusService) newPlayerHandler(w http.ResponseWriter, r *http.Request) {
+func (s *APIService) newPlayerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Handled by newPlayerHandler()"))
 }
 
-func (s *BlokusService) newMoveHandler(w http.ResponseWriter, r *http.Request) {
+func (s *APIService) newMoveHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Handled by newMoveHandler()"))
 }

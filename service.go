@@ -9,27 +9,27 @@ import (
 	"google.golang.org/api/option"
 )
 
-type BlokusService struct {
+type APIService struct {
 	client *datastore.Client
 }
 
-func NewService(r *mux.Router) (*BlokusService, error) {
+func NewService(r *mux.Router) (*APIService, error) {
 	if r == nil {
 		return nil, fmt.Errorf("Router cannot be nil")
 	}
-	s := &BlokusService{}
+	s := &APIService{}
 	s.addRoutes(r)
 	return s, nil
 }
 
-func (s *BlokusService) Close() {
+func (s *APIService) Close() {
 	if s.client != nil {
 		s.client.Close()
 		s.client = nil
 	}
 }
 
-func (s *BlokusService) addRoutes(r *mux.Router) {
+func (s *APIService) addRoutes(r *mux.Router) {
 	r = r.PathPrefix("/games").Subrouter()
 
 	// Gets a webpage with a listing of games.
@@ -51,7 +51,7 @@ func (s *BlokusService) addRoutes(r *mux.Router) {
 // InitDBClient initializes the Google Datastore client.
 // For both projectID and credsFile, they can alternatively be provided through environment variables
 // DATASTORE_PROJECT_ID and GOOGLE_APPLICATION_CREDENTIALS, respectively, in which case the cooresponding params can be left empty.
-func (s *BlokusService) InitDBClient(ctx context.Context, projectID, credsFile string) error {
+func (s *APIService) InitDBClient(ctx context.Context, projectID, credsFile string) error {
 	// Close any existing client connections.
 	s.Close()
 
@@ -67,6 +67,6 @@ func (s *BlokusService) InitDBClient(ctx context.Context, projectID, credsFile s
 	return nil
 }
 
-func (s *BlokusService) numGames(ctx context.Context) (int, error) {
+func (s *APIService) numGames(ctx context.Context) (int, error) {
 	return s.client.Count(ctx, datastore.NewQuery("Game"))
 }
