@@ -42,7 +42,7 @@ func TestEndToEnd(t *testing.T) {
 	if s == nil {
 		t.Fatal("NewService(router): got service==nil, want service")
 	}
-	if err := s.InitClient(context.Background(), "", ""); err != nil {
+	if err := s.InitDBClient(context.Background(), "", ""); err != nil {
 		t.Fatalf("InitClient(): got %v, want no error", err)
 	}
 	defer s.Close()
