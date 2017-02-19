@@ -3,27 +3,47 @@ package blokusWebAPI
 import (
 	"context"
 	"testing"
+
+	"github.com/gorilla/mux"
 )
 
-func TestNewServiceNoPrefix(t *testing.T) {
-	if s := New(""); s == nil {
-		t.Error("New(''): got service==nil, want service")
+func TestNewServiceNilRouter(t *testing.T) {
+	if _, err := NewService(nil); err == nil {
+		t.Errorf("NewService(nil): got no error, want error")
 	}
 }
 
-func TestNewServiceWithPrefix(t *testing.T) {
-	if s := New("/foo"); s == nil {
-		t.Error("New('/foo'): got service==nil, want service")
+func TestNewService(t *testing.T) {
+	r := mux.NewRouter()
+	if s, err := NewService(r); err != nil {
+		t.Fatalf("NewService(router): got error %v, want no error", err)
+	} else if s == nil {
+		t.Fatal("NewService(router): got service==nil, want service")
+	}
+	// Make sure routes were added.
+	count := 0
+	if err := r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		count = count + 1
+		return nil
+	}); err != nil {
+		t.Errorf("Router.Walk(): got error %v, want no error", err)
+	}
+	if count <= 0 {
+		t.Errorf("Router.Walk() count: got %v, want > 0")
 	}
 }
 
 func TestEndToEnd(t *testing.T) {
-	s := New("/foo")
+	r := mux.NewRouter()
+	s, err := NewService(r)
+	if err != nil {
+		t.Fatalf("NewService(router): got error %v, want no error")
+	}
 	if s == nil {
-		t.Fatal("New('/foo'): got service==nil, want service")
+		t.Fatal("NewService(router): got service==nil, want service")
 	}
 	if err := s.InitClient(context.Background(), "", ""); err != nil {
-		t.Fatalf("InitClient(''): got %v, want no error", err)
+		t.Fatalf("InitClient(): got %v, want no error", err)
 	}
 	defer s.Close()
 
