@@ -2,8 +2,7 @@ package blokusService
 
 import (
 	"context"
-	"net/http"
-	"path"
+	"fmt"
 
 	"cloud.google.com/go/datastore"
 	"github.com/gorilla/mux"
@@ -11,14 +10,16 @@ import (
 )
 
 type BlokusService struct {
-	router *mux.Router
 	client *datastore.Client
 }
 
-func New(prefix string) *BlokusService {
+func NewService(r *mux.Router) (*BlokusService, error) {
+	if r == nil {
+		return nil, fmt.Errorf("Router cannot be nil")
+	}
 	s := &BlokusService{}
-	s.initRouter(prefix)
-	return s
+	s.addRoutes(r)
+	return s, nil
 }
 
 func (s *BlokusService) Close() {
@@ -28,20 +29,15 @@ func (s *BlokusService) Close() {
 	}
 }
 
-func (s *BlokusService) Router() http.Handler {
-	return s.router
-}
-
-func (s *BlokusService) initRouter(prefix string) {
-	r := mux.NewRouter()
-	sr := r.PathPrefix(path.Join(prefix, "/games")).Subrouter()
+func (s *BlokusService) addRoutes(r *mux.Router) {
+	r = r.PathPrefix("/games").Subrouter()
 
 	// Gets a webpage with a listing of games.
-	sr.HandleFunc("", s.getGamesHandler).Methods("GET")
+	r.HandleFunc("", s.getGamesHandler).Methods("GET")
 	// Creates a game.
-	sr.HandleFunc("", s.newGameHandler).Methods("POST")
+	r.HandleFunc("", s.newGameHandler).Methods("POST")
 
-	g := sr.PathPrefix("/{gid:[0-9]+}").Subrouter()
+	g := r.PathPrefix("/{gid:[0-9]+}").Subrouter()
 	// Gets a webpage showing the specified game.
 	g.HandleFunc("", s.getGameHandler).Methods("GET")
 	// Gets various game state data.
@@ -50,14 +46,15 @@ func (s *BlokusService) initRouter(prefix string) {
 	g.HandleFunc("/players", s.newPlayerHandler).Methods("POST")
 	// Make a move in the game.
 	g.HandleFunc("/moves", s.newMoveHandler).Methods("POST")
-
-	s.router = r
 }
 
 // InitClient initializes the Google Datastore client.
 // For both projectID and credsFile, they can alternatively be provided through environment variables
 // DATASTORE_PROJECT_ID and GOOGLE_APPLICATION_CREDENTIALS, respectively, in which case the cooresponding params can be left empty.
 func (s *BlokusService) InitClient(ctx context.Context, projectID, credsFile string) error {
+	// Close any existing client connections.
+	s.Close()
+
 	opts := []option.ClientOption{}
 	if credsFile != "" {
 		opts = append(opts, option.WithServiceAccountFile(credsFile))
