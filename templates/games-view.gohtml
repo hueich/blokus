@@ -1,0 +1,16 @@
+{{define "games-view"}}
+<html>
+<head></head>
+<body>
+<h1>Blokus Games List</h1>
+<div>
+<form name="new-game-form" method="POST" action="{{.FormAction}}">
+  <button type="submit">Create Game</button>
+</form>
+</div>
+
+{{template "games-list" .}}
+
+</body>
+</html>
+{{end}}

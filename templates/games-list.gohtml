@@ -1,5 +1,5 @@
 {{define "games-list"}}
-{{with $games := .}}
+{{with $games := .Games}}
 <div>Games ({{$games | len}}):</div>
 <ul>
 {{range $gid := $games}}

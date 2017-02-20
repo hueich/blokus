@@ -21,6 +21,7 @@ const (
 type UIService struct {
 	apiURL   string
 	tmplsDir string
+	tmpls    *template.Template
 }
 
 func NewService(r *mux.Router, apiURL, templatesDir string) (*UIService, error) {
@@ -30,6 +31,7 @@ func NewService(r *mux.Router, apiURL, templatesDir string) (*UIService, error) 
 	if apiURL == "" {
 		return nil, fmt.Errorf("API URL cannot be empty")
 	}
+
 	if templatesDir == "" {
 		if dir, err := getTemplatesDir(); err != nil {
 			return nil, err
@@ -39,11 +41,17 @@ func NewService(r *mux.Router, apiURL, templatesDir string) (*UIService, error) 
 	} else if !isReadableDir(templatesDir) {
 		return nil, fmt.Errorf("Could not read templates directory: %v", templatesDir)
 	}
-
 	log.Println("Using templates directory:", templatesDir)
+
+	t, err := template.ParseGlob(filepath.Join(templatesDir, "*.gohtml"))
+	if err != nil {
+		return nil, err
+	}
+
 	s := &UIService{
 		apiURL:   apiURL,
 		tmplsDir: templatesDir,
+		tmpls:    t,
 	}
 	s.addRoutes(r)
 	return s, nil
@@ -61,25 +69,17 @@ func (s *UIService) addRoutes(r *mux.Router) {
 }
 
 func (s *UIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles(filepath.Join(s.tmplsDir, "games-list.gohtml"))
-	if err != nil {
+	w.Header().Set("Content-Type", "text/html;charset=utf-8")
+	if err := s.tmpls.ExecuteTemplate(w, "games-view", map[string]interface{}{
+		"FormAction": path.Join(s.apiURL, "games"),
+		"Games":      []int64{123, 456},
+	}); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("Could not parse template files: %v\n", err)
+		log.Printf("Could not execute template: %v\n", err)
 		return
 	}
 
-	// TODO: Move this to use html templates
-	w.Header().Set("Content-Type", "text/html;charset=utf-8")
-	w.Write([]byte("<html><head></head><body>\n"))
-	w.Write([]byte(fmt.Sprintf(`<form name="myform" method="POST" action="%s">
-					  <input type="text" name="gid"/>
-					  <button type="submit">Create Game</button>
-					</form>`, path.Join(s.apiURL, "games"))))
-
-	t.ExecuteTemplate(w, "games-list", []int64{123, 456})
-
 	// TODO: Add client side game fetching code
-	w.Write([]byte("</body></html>"))
 }
 
 func (s *UIService) getGameHandler(w http.ResponseWriter, r *http.Request) {
