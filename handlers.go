@@ -1,6 +1,7 @@
 package blokusWebAPI
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,14 +14,11 @@ import (
 	"github.com/hueich/blokus"
 )
 
-func (s *APIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html;charset=utf-8")
-	w.Write([]byte("<html><head></head><body>\n"))
-	w.Write([]byte(`<form name="myform" method="POST">
-					  <input type="text" name="gid"/>
-					  <button type="submit">Create Game</button>
-					</form>`))
+type game struct {
+	ID int64
+}
 
+func (s *APIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	q := datastore.NewQuery("Game")
 	q = q.KeysOnly()
 	keys, err := s.client.GetAll(r.Context(), q, nil)
@@ -29,11 +27,20 @@ func (s *APIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Could not get list of games: %v\n", err)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("<div>There are %d games:</div>\n<ul>\n", len(keys))))
+
+	games := make([]*game, 0, len(keys))
 	for _, k := range keys {
-		w.Write([]byte(fmt.Sprintf("<li><a href=\"games/%v\">%v</a></li>", k.ID, k.ID)))
+		games = append(games, &game{ID: k.ID})
 	}
-	w.Write([]byte("</ul></body></html>"))
+
+	b, err := json.Marshal(games)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Could not marshal list of games: %v\n", err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	w.Write(b)
 }
 
 func (s *APIService) newGameHandler(w http.ResponseWriter, r *http.Request) {
