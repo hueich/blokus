@@ -81,7 +81,7 @@ func (s *UIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.tmpls.ExecuteTemplate(w, "main-games-view", map[string]interface{}{
-		"FormAction":  path.Join(s.apiURL, "games"),
+		"NewGameURL":  path.Join(s.apiURL, "games"),
 		"GetGamesURL": path.Join(s.apiURL, "games"),
 	}); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

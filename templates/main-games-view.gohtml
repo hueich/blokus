@@ -2,10 +2,27 @@
 {{template "header"}}
 
 <h1>Blokus Games List</h1>
-<div>
-<form name="new-game-form" method="POST" action="{{.FormAction}}">
-  <button type="submit">Create Game</button>
-</form>
+<div id="new-game-section" class="section">
+<button type="button" id="new-game-button">New Game</button>
+<div id="new-game-error" class="error-message"></div>
+
+<script type="text/javascript">
+$("#new-game-button").click(function(e) {
+	$("#new-game-error").empty();
+	$.post("{{.NewGameURL}}", {})
+		.done(function(data) {
+			let game = JSON.parse(data);
+			window.location = "games/" + game.ID;
+		})
+		.fail(function(data) {
+			let errMsg = "Failed to create new game.";
+			if (data.responseText) {
+				errMsg = data.responseText;
+			}
+			$("#new-game-error").text(errMsg);
+		});
+});
+</script>
 </div>
 
 {{template "games-list" .}}
