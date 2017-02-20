@@ -1,0 +1,10 @@
+{{define "games-list"}}
+{{with $games := .}}
+<div>Games ({{$games | len}}):</div>
+<ul>
+{{range $gid := $games}}
+	<li><a href="games/{{$gid}}">{{$gid}}</a></li>
+{{end}}
+</ul>
+{{end}}
+{{end}}
