@@ -5,16 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"path"
 	"strconv"
-	"strings"
 
 	"cloud.google.com/go/datastore"
 	"github.com/gorilla/mux"
 	"github.com/hueich/blokus"
 )
 
-type game struct {
+type gameInfo struct {
 	ID int64
 }
 
@@ -28,9 +26,9 @@ func (s *APIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	games := make([]*game, 0, len(keys))
+	games := make([]*gameInfo, 0, len(keys))
 	for _, k := range keys {
-		games = append(games, &game{ID: k.ID})
+		games = append(games, &gameInfo{ID: k.ID})
 	}
 
 	b, err := json.Marshal(games)
@@ -52,6 +50,7 @@ func (s *APIService) newGameHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Could not instantiate new game: %v\n", err)
 		return
 	}
+	// TODO: Also add current player to game.
 	gameKey := datastore.IncompleteKey("Game", nil)
 	gameKey, err = s.client.Put(r.Context(), gameKey, g)
 	if err != nil {
@@ -61,12 +60,14 @@ func (s *APIService) newGameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 
-	if strings.Contains(r.Header.Get("Accept"), "text/html") {
-		w.Header().Set("Content-Type", "text/html;charset=utf-8")
-		// TODO: May need to escape URL path.
-		p := path.Join(r.URL.Path, strconv.FormatInt(gameKey.ID, 10))
-		w.Write([]byte(fmt.Sprintf(`<html><head><meta http-equiv="refresh" content="0;url='%s'"/></head></html>`, p)))
+	b, err := json.Marshal(gameInfo{ID: gameKey.ID})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Could not marshal created game info: %v\n", err)
+		return
 	}
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	w.Write(b)
 }
 
 func (s *APIService) getGameHandler(w http.ResponseWriter, r *http.Request) {
