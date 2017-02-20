@@ -49,13 +49,14 @@ func (c Color) String() string {
 }
 
 type Player struct {
-	// Unique name of the player.
-	Name  string
+	// Name is the name of the player.
+	Name string
+	// Color is the color of the player and the player's pieces.
 	Color Color
-	// The position the player starts from, e.g. [0,0], or [0,19] for a size 20 board.
+	// StartPos is the position the player starts from, e.g. [0,0], or [0,19] for a size 20 board.
 	StartPos Coord
-	// True at an index means the corresponding piece has been placed on the board.
-	PlacedPieces []bool
+	// PlacedPieces stores whether a piece at the corresponding index has been placed on the board.
+	PlacedPieces []bool `datastore:",noindex"`
 }
 
 func NewPlayer(name string, color Color, startPos Coord, numPieces int) (*Player, error) {
@@ -97,8 +98,10 @@ func (p *Player) placePiece(index int) error {
 
 // Board represents the game board.
 type Board struct {
+	// Height and Width of the board.
 	Height, Width int
-	Grid          []Color
+	// Grid stores the cells of the board in consecutive rows from top-left corner.
+	Grid []Color `datastore:",noindex,omitempty"`
 }
 
 func NewBoard(size int) (*Board, error) {
@@ -115,19 +118,25 @@ func NewRectBoard(height, width int) (*Board, error) {
 	b := &Board{
 		Height: height,
 		Width:  width,
-		Grid:   make([]Color, height*width),
 	}
 	return b, nil
 }
 
+func (b *Board) initGrid() {
+	if len(b.Grid) == 0 {
+		b.Grid = make([]Color, b.Height*b.Width)
+	}
+}
+
 func (b *Board) Cell(c Coord) Color {
-	if b.IsOutOfBounds(c) {
+	if len(b.Grid) == 0 || b.IsOutOfBounds(c) {
 		return colorEmpty
 	}
 	return b.Grid[c.X*b.Width+c.Y]
 }
 
 func (b *Board) SetCell(coord Coord, color Color) {
+	b.initGrid()
 	if b.IsOutOfBounds(coord) {
 		return
 	}
@@ -140,9 +149,9 @@ func (b *Board) IsOutOfBounds(c Coord) bool {
 
 // Piece represents a puzzle piece, made up of one or more square blocks.
 type Piece struct {
-	// The square blocks this piece consists of. First block must be at (0,0) with other blocks relative to it.
+	// Blocks is the square blocks this piece consists of. First block must be at (0,0) with other blocks relative to it.
 	// The blocks are stored in their original coordinates with no rotation or flipping. Orientation is used to calcuate the actual coordinates.
-	Blocks []Coord
+	Blocks []Coord `datastore:",noindex"`
 	// The corner squares of this piece, which was calculated from blocks and cached here.
 	corners []Coord
 }
@@ -198,13 +207,13 @@ func getCorners(blocks []Coord) []Coord {
 }
 
 type Move struct {
-	// The player who made the move. Cannot be nil.
+	// Player is the player who made the move. Cannot be nil.
 	Player *Player
-	// The index of the piece that was played. Negative if the turn was passed.
+	// PieceIndex is the index of the piece that was played. Negative if the turn was passed.
 	PieceIndex int
-	// Orientation of the piece when played.
+	// Orient is the orientation of the piece when played.
 	Orient Orientation
-	// Location on the board where the piece was played.
+	// Loc is the location on the board where the piece was played.
 	// This is the coordinate where the (0,0) block of the piece is located.
 	Loc Coord
 }
