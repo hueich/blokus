@@ -80,7 +80,7 @@ func (s *UIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.tmpls.ExecuteTemplate(w, "games-view", map[string]interface{}{
+	if err := s.tmpls.ExecuteTemplate(w, "main-games-view", map[string]interface{}{
 		"FormAction":  path.Join(s.apiURL, "games"),
 		"GetGamesURL": path.Join(s.apiURL, "games"),
 	}); err != nil {

@@ -1,4 +1,4 @@
-{{define "games-list"}}
+{{define "games-list" -}}
 <div id="games-list-section">
 <div>Games (<span id="games-count"></span>):</div>
 <div id="games-list-error"></div>
@@ -24,4 +24,4 @@ $.getJSON("{{.GetGamesURL}}")
 	});
 </script>
 </div>
-{{end}}
+{{- end}}

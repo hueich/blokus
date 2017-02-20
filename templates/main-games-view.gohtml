@@ -1,9 +1,6 @@
-{{define "games-view"}}
-<html>
-<head>
-	<script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-</head>
-<body>
+{{define "main-games-view" -}}
+{{template "header"}}
+
 <h1>Blokus Games List</h1>
 <div>
 <form name="new-game-form" method="POST" action="{{.FormAction}}">
@@ -13,6 +10,5 @@
 
 {{template "games-list" .}}
 
-</body>
-</html>
-{{end}}
+{{template "footer"}}
+{{- end}}
