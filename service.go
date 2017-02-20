@@ -70,9 +70,19 @@ func (s *UIService) addRoutes(r *mux.Router) {
 
 func (s *UIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html;charset=utf-8")
+
+	//DEBUG
+	var err error
+	s.tmpls, err = template.ParseGlob(filepath.Join(s.tmplsDir, "*.gohtml"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Could not glob templates: %v\n", err)
+		return
+	}
+
 	if err := s.tmpls.ExecuteTemplate(w, "games-view", map[string]interface{}{
-		"FormAction": path.Join(s.apiURL, "games"),
-		"Games":      []int64{123, 456},
+		"FormAction":  path.Join(s.apiURL, "games"),
+		"GetGamesURL": path.Join(s.apiURL, "games"),
 	}); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("Could not execute template: %v\n", err)
