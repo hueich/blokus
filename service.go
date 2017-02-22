@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 )
 
 const (
@@ -22,22 +23,34 @@ type AppService struct {
 	apiURL   string
 	tmplsDir string
 	tmpls    *template.Template
+	store    sessions.Store
 }
 
-func NewService(r *mux.Router, apiURL, templatesDir string) (*AppService, error) {
-	if r == nil {
+type Options struct {
+	Router       *mux.Router
+	ApiURL       string
+	TemplatesDir string
+	Store        sessions.Store
+}
+
+func NewService(opt *Options) (*AppService, error) {
+	if opt.Router == nil {
 		return nil, fmt.Errorf("Router cannot be nil")
 	}
-	if apiURL == "" {
+	if opt.ApiURL == "" {
 		return nil, fmt.Errorf("API URL cannot be empty")
 	}
+	if opt.Store == nil {
+		return nil, fmt.Errorf("Session store cannot be nil")
+	}
 
+	templatesDir := opt.TemplatesDir
 	if templatesDir == "" {
-		if dir, err := getTemplatesDir(); err != nil {
+		d, err := getTemplatesDir()
+		if err != nil {
 			return nil, err
-		} else {
-			templatesDir = dir
 		}
+		templatesDir = d
 	} else if !isReadableDir(templatesDir) {
 		return nil, fmt.Errorf("Could not read templates directory: %v", templatesDir)
 	}
@@ -49,11 +62,12 @@ func NewService(r *mux.Router, apiURL, templatesDir string) (*AppService, error)
 	}
 
 	s := &AppService{
-		apiURL:   apiURL,
+		apiURL:   opt.ApiURL,
 		tmplsDir: templatesDir,
 		tmpls:    t,
+		store:    opt.Store,
 	}
-	s.addRoutes(r)
+	s.addRoutes(opt.Router)
 	return s, nil
 }
 
