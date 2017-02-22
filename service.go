@@ -1,4 +1,4 @@
-package blokusWebUI
+package blokusWebApp
 
 import (
 	"fmt"
@@ -14,17 +14,17 @@ import (
 )
 
 const (
-	importDir    = "github.com/hueich/blokus-web-ui"
+	importDir    = "github.com/hueich/blokus-web-app"
 	templatesDir = "templates"
 )
 
-type UIService struct {
+type AppService struct {
 	apiURL   string
 	tmplsDir string
 	tmpls    *template.Template
 }
 
-func NewService(r *mux.Router, apiURL, templatesDir string) (*UIService, error) {
+func NewService(r *mux.Router, apiURL, templatesDir string) (*AppService, error) {
 	if r == nil {
 		return nil, fmt.Errorf("Router cannot be nil")
 	}
@@ -48,7 +48,7 @@ func NewService(r *mux.Router, apiURL, templatesDir string) (*UIService, error) 
 		return nil, err
 	}
 
-	s := &UIService{
+	s := &AppService{
 		apiURL:   apiURL,
 		tmplsDir: templatesDir,
 		tmpls:    t,
@@ -57,7 +57,7 @@ func NewService(r *mux.Router, apiURL, templatesDir string) (*UIService, error) 
 	return s, nil
 }
 
-func (s *UIService) addRoutes(r *mux.Router) {
+func (s *AppService) addRoutes(r *mux.Router) {
 	r = r.PathPrefix("/games").Subrouter()
 
 	// Gets a webpage with a listing of games.
@@ -68,7 +68,7 @@ func (s *UIService) addRoutes(r *mux.Router) {
 	g.HandleFunc("", s.getGameHandler).Methods("GET")
 }
 
-func (s *UIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
+func (s *AppService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html;charset=utf-8")
 
 	//DEBUG
@@ -92,7 +92,7 @@ func (s *UIService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Add client side game fetching code
 }
 
-func (s *UIService) getGameHandler(w http.ResponseWriter, r *http.Request) {
+func (s *AppService) getGameHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Page to show game UI
 }
 
