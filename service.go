@@ -40,30 +40,32 @@ func NewService(opt *Options) (*AppService, error) {
 	if opt.ApiURL == "" {
 		return nil, fmt.Errorf("API URL cannot be empty")
 	}
+	apiURL := path.Clean(opt.ApiURL)
+	log.Println("Using API URL:", apiURL)
 	if opt.Store == nil {
 		return nil, fmt.Errorf("Session store cannot be nil")
 	}
 
-	templatesDir := opt.TemplatesDir
-	if templatesDir == "" {
+	tDir := opt.TemplatesDir
+	if tDir == "" {
 		d, err := getTemplatesDir()
 		if err != nil {
 			return nil, err
 		}
-		templatesDir = d
-	} else if !isReadableDir(templatesDir) {
-		return nil, fmt.Errorf("Could not read templates directory: %v", templatesDir)
+		tDir = d
+	} else if !isReadableDir(tDir) {
+		return nil, fmt.Errorf("Could not read templates directory: %v", tDir)
 	}
-	log.Println("Using templates directory:", templatesDir)
+	log.Println("Using templates directory:", tDir)
 
-	t, err := template.ParseGlob(filepath.Join(templatesDir, "*.gohtml"))
+	t, err := template.ParseGlob(filepath.Join(tDir, "*.gohtml"))
 	if err != nil {
 		return nil, err
 	}
 
 	s := &AppService{
-		apiURL:   opt.ApiURL,
-		tmplsDir: templatesDir,
+		apiURL:   apiURL,
+		tmplsDir: tDir,
 		tmpls:    t,
 		store:    opt.Store,
 	}
