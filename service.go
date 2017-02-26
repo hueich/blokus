@@ -13,12 +13,24 @@ type APIService struct {
 	client *datastore.Client
 }
 
-func NewService(r *mux.Router) (*APIService, error) {
-	if r == nil {
+type Options struct {
+	Router    *mux.Router
+	ProjectID string
+	CredsFile string
+}
+
+func NewService(opts *Options) (*APIService, error) {
+	if opts.Router == nil {
 		return nil, fmt.Errorf("Router cannot be nil")
 	}
-	s := &APIService{}
-	s.addRoutes(r)
+	c, err := newDBClient(context.Background(), opts.ProjectID, opts.CredsFile)
+	if err != nil {
+		return nil, err
+	}
+	s := &APIService{
+		client: c,
+	}
+	s.addRoutes(opts.Router)
 	return s, nil
 }
 
@@ -48,23 +60,19 @@ func (s *APIService) addRoutes(r *mux.Router) {
 	g.HandleFunc("/moves", s.newMoveHandler).Methods("POST")
 }
 
-// InitDBClient initializes the Google Datastore client.
+// newDBClient creates a new Google Datastore client.
 // For both projectID and credsFile, they can alternatively be provided through environment variables
 // DATASTORE_PROJECT_ID and GOOGLE_APPLICATION_CREDENTIALS, respectively, in which case the cooresponding params can be left empty.
-func (s *APIService) InitDBClient(ctx context.Context, projectID, credsFile string) error {
-	// Close any existing client connections.
-	s.Close()
-
+func newDBClient(ctx context.Context, projectID, credsFile string) (*datastore.Client, error) {
 	opts := []option.ClientOption{}
 	if credsFile != "" {
 		opts = append(opts, option.WithServiceAccountFile(credsFile))
 	}
 	c, err := datastore.NewClient(ctx, projectID, opts...)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	s.client = c
-	return nil
+	return c, nil
 }
 
 func (s *APIService) numGames(ctx context.Context) (int, error) {
