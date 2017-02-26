@@ -85,7 +85,6 @@ func (s *AppService) addRoutes(r *mux.Router) {
 }
 
 func (s *AppService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html;charset=utf-8")
 
 	//DEBUG
 	var err error
@@ -96,6 +95,7 @@ func (s *AppService) getGamesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/html;charset=utf-8")
 	if err := s.tmpls.ExecuteTemplate(w, "main-games-view", map[string]interface{}{
 		"NewGameURL":  path.Join(s.apiURL, "games"),
 		"GetGamesURL": path.Join(s.apiURL, "games"),
