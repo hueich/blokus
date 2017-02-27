@@ -1,0 +1,27 @@
+{{define "games-list" -}}
+<div id="games-list-section" class="section">
+<div>Games (<span id="games-count"></span>):</div>
+<div id="games-list-error" class="error-message"></div>
+<ul id="games-list"></ul>
+
+<script type="text/javascript">
+$.getJSON("{{.GetGamesURL}}")
+	.done(function(data) {
+		$("#games-list-error").empty();
+		$("#games-count").text(data.length);
+		let gamesList = $("#games-list");
+		gamesList.empty();
+		$.each(data, function(_, game) {
+			gamesList.append($(document.createElement("li")).wrapInner($(document.createElement("a")).attr("href", "games/"+game.ID).text(game.ID)));
+		});
+	})
+	.fail(function(data) {
+		let errMsg = "Failed to load list of games.";
+		if (data.responseText) {
+			errMsg = data.responseText;
+		}
+		$("#games-list-error").text(errMsg);
+	});
+</script>
+</div>
+{{- end}}
