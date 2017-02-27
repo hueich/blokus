@@ -1,4 +1,4 @@
-package blokusWebApp
+package app
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	importDir    = "github.com/hueich/blokus-web-app"
+	importDir    = "github.com/hueich/blokus/web/app"
 	templatesDir = "templates"
 )
 

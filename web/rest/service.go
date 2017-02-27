@@ -1,4 +1,4 @@
-package blokusWebAPI
+package rest
 
 import (
 	"context"
