@@ -143,6 +143,16 @@ func (b *Board) SetCell(coord Coord, color Color) {
 	b.Grid[coord.X*b.Width+coord.Y] = color
 }
 
+func (b *Board) Row(r int) []Color {
+	if r < 0 || r >= b.Height {
+		return nil
+	}
+	if len(b.Grid) == 0 {
+		return make([]Color, b.Width)
+	}
+	return b.Grid[r*b.Width : (r+1)*b.Width]
+}
+
 func (b *Board) IsOutOfBounds(c Coord) bool {
 	return c.X < 0 || c.Y < 0 || c.X >= b.Height || c.Y >= b.Width
 }

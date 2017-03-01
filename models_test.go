@@ -113,6 +113,20 @@ func TestBoardCoordsOutOfBounds(t *testing.T) {
 	}
 }
 
+func TestBoardRow(t *testing.T) {
+	b, err := NewBoard(10)
+	if err != nil {
+		t.Fatalf("NewBoard(): got error %v, want no error", err)
+	}
+	if got, want := b.Row(2), make([]Color, 10); !reflect.DeepEqual(got, want) {
+		t.Errorf("Row(2) for empty board: got %v, want %v", got, want)
+	}
+	b.SetCell(Coord{2, 9}, Green)
+	if got, want := b.Row(2), append(make([]Color, 9), Color(Green)); !reflect.DeepEqual(got, want) {
+		t.Errorf("Row(2) for set board: got %v, want %v", got, want)
+	}
+}
+
 func TestNewPlayer(t *testing.T) {
 	p, err := NewPlayer("brown beard", Red, Coord{0, 0}, 2)
 	if err != nil {
