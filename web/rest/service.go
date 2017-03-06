@@ -34,11 +34,11 @@ func NewService(opts *Options) (*APIService, error) {
 	return s, nil
 }
 
-func (s *APIService) Close() {
+func (s *APIService) Close() error {
 	if s.client != nil {
-		s.client.Close()
-		s.client = nil
+		return s.client.Close()
 	}
+	return nil
 }
 
 func (s *APIService) addRoutes(r *mux.Router) {
