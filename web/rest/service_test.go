@@ -8,14 +8,14 @@ import (
 )
 
 func TestNewServiceNilRouter(t *testing.T) {
-	if _, err := NewService(nil); err == nil {
-		t.Errorf("NewService(nil): got no error, want error")
+	if _, err := NewService(nil, nil); err == nil {
+		t.Errorf("NewService(nil, nil): got no error, want error")
 	}
 }
 
 func TestNewService(t *testing.T) {
 	r := mux.NewRouter()
-	if s, err := NewService(r); err != nil {
+	if s, err := NewService(r, nil); err != nil {
 		t.Fatalf("NewService(router): got error %v, want no error", err)
 	} else if s == nil {
 		t.Fatal("NewService(router): got service==nil, want service")
@@ -29,21 +29,18 @@ func TestNewService(t *testing.T) {
 		t.Errorf("Router.Walk(): got error %v, want no error", err)
 	}
 	if count <= 0 {
-		t.Errorf("Router.Walk() count: got %v, want > 0")
+		t.Errorf("Router.Walk() count: got %v, want > 0", count)
 	}
 }
 
 func TestEndToEnd(t *testing.T) {
 	r := mux.NewRouter()
-	s, err := NewService(r)
+	s, err := NewService(r, nil)
 	if err != nil {
-		t.Fatalf("NewService(router): got error %v, want no error")
+		t.Fatalf("NewService(router): got error %v, want no error", err)
 	}
 	if s == nil {
 		t.Fatal("NewService(router): got service==nil, want service")
-	}
-	if err := s.InitDBClient(context.Background(), "", ""); err != nil {
-		t.Fatalf("InitClient(): got %v, want no error", err)
 	}
 	defer s.Close()
 
