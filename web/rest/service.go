@@ -12,17 +12,22 @@ type APIService struct {
 	client *datastore.Client
 }
 
-func NewService(r *mux.Router, c *datastore.Client) (*APIService, error) {
-	if r == nil {
+type Options struct {
+	Router *mux.Router
+	Client *datastore.Client
+}
+
+func NewService(opts Options) (*APIService, error) {
+	if opts.Router == nil {
 		return nil, errors.New("REST service: router cannot be nil")
 	}
-	if c == nil {
+	if opts.Client == nil {
 		return nil, errors.New("REST service: datastore client cannot be nil")
 	}
 	s := &APIService{
-		client: c,
+		client: opts.Client,
 	}
-	s.addRoutes(r)
+	s.addRoutes(opts.Router)
 	return s, nil
 }
 

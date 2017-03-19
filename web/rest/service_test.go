@@ -8,14 +8,14 @@ import (
 )
 
 func TestNewServiceNilRouter(t *testing.T) {
-	if _, err := NewService(nil, nil); err == nil {
+	if _, err := NewService(Options{}); err == nil {
 		t.Errorf("NewService(nil, nil): got no error, want error")
 	}
 }
 
 func TestNewService(t *testing.T) {
 	r := mux.NewRouter()
-	if s, err := NewService(r, nil); err != nil {
+	if s, err := NewService(Options{Router: r}); err != nil {
 		t.Fatalf("NewService(router): got error %v, want no error", err)
 	} else if s == nil {
 		t.Fatal("NewService(router): got service==nil, want service")
@@ -35,7 +35,7 @@ func TestNewService(t *testing.T) {
 
 func TestEndToEnd(t *testing.T) {
 	r := mux.NewRouter()
-	s, err := NewService(r, nil)
+	s, err := NewService(Options{Router: r})
 	if err != nil {
 		t.Fatalf("NewService(router): got error %v, want no error", err)
 	}
