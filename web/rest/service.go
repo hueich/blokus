@@ -2,35 +2,27 @@ package rest
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"cloud.google.com/go/datastore"
 	"github.com/gorilla/mux"
-	"google.golang.org/api/option"
 )
 
 type APIService struct {
 	client *datastore.Client
 }
 
-type Options struct {
-	Router    *mux.Router
-	ProjectID string
-	CredsFile string
-}
-
-func NewService(opts *Options) (*APIService, error) {
-	if opts.Router == nil {
-		return nil, fmt.Errorf("Router cannot be nil")
+func NewService(r *mux.Router, c *datastore.Client) (*APIService, error) {
+	if r == nil {
+		return nil, errors.New("REST service: router cannot be nil")
 	}
-	c, err := newDBClient(context.Background(), opts.ProjectID, opts.CredsFile)
-	if err != nil {
-		return nil, err
+	if c == nil {
+		return nil, errors.New("REST service: datastore client cannot be nil")
 	}
 	s := &APIService{
 		client: c,
 	}
-	s.addRoutes(opts.Router)
+	s.addRoutes(r)
 	return s, nil
 }
 
@@ -58,21 +50,6 @@ func (s *APIService) addRoutes(r *mux.Router) {
 	g.HandleFunc("/players", s.newPlayerHandler).Methods("POST")
 	// Make a move in the game.
 	g.HandleFunc("/moves", s.newMoveHandler).Methods("POST")
-}
-
-// newDBClient creates a new Google Datastore client.
-// For both projectID and credsFile, they can alternatively be provided through environment variables
-// DATASTORE_PROJECT_ID and GOOGLE_APPLICATION_CREDENTIALS, respectively, in which case the cooresponding params can be left empty.
-func newDBClient(ctx context.Context, projectID, credsFile string) (*datastore.Client, error) {
-	opts := []option.ClientOption{}
-	if credsFile != "" {
-		opts = append(opts, option.WithServiceAccountFile(credsFile))
-	}
-	c, err := datastore.NewClient(ctx, projectID, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
 }
 
 func (s *APIService) numGames(ctx context.Context) (int, error) {
